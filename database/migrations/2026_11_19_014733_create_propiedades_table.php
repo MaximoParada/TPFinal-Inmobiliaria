@@ -23,7 +23,6 @@ return new class extends Migration
             $table->decimal('precio', 12, 2);
             $table->decimal('expensas', 10, 2)->default(0);
             $table->json('imagenes')->nullable(); // Guarda array de rutas para el carrusel
-            $table->json('horarios_visita')->nullable(); // Ej: ["Martes 10:00", "Jueves 15:30"]
             $table->timestamps();
         });
     }

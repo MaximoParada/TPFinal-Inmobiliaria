@@ -13,10 +13,16 @@ return new class extends Migration
     {
         Schema::create('visita', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('propiedad_id')->constrained('propiedades')->onDelete('cascade');
-            $table->string('nombre_cliente');
-            $table->string('telefono_cliente');
-            $table->string('fecha_elegida');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('propiedad_id')->constrained('propiedades')->cascadeOnDelete();
+            $table->string('nombre_cliente')->nullable();
+            $table->string('telefono_cliente')->nullable();
+            $table->string('fecha_elegida')->nullable();
+
+            // Campos estructurados para el Turnero y FullCalendar
+            $table->date('fecha');
+            $table->time('hora')->nullable();
+            $table->string('estado')->default('pendiente'); // pendiente, confirmada, cancelada
             $table->timestamps();
         });
     }

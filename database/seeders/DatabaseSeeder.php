@@ -19,5 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ReferenciasTasacionSeeder::class);
         $this->call(RespuestasBotSeeder::class);
         $this->call(PalabrasClaveSeeder::class);
+        $this->call(UserSeeder::class);
+        $this->call(CaracteristicaSeeder::class);
+        $this->call(VisitaSeeder::class);
     }
 }

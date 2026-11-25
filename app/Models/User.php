@@ -22,6 +22,10 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    public function visitas()
+    {
+        return $this->hasMany(Visita::class);
+    }
     protected function casts(): array
     {
         return [
