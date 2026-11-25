@@ -18,20 +18,18 @@ class Propiedad extends Model
         'metros_cuadrados',
         'precio',
         'expensas',
-        'imagenes',
-        'horarios_visita',
+        'imagenes'
     ];
 
     // Convierte automáticamente el JSON de la BD en un array de PHP
     protected $casts = [
-        'imagenes' => 'array',
-        'horarios_visita' => 'array',
+        'imagenes' => 'array'
     ];
 
     // Relación 1 a Muchos: Una propiedad tiene muchas visitas
     public function visitas()
     {
-        return $this->hasMany(Visita::class, 'propiedad_id');
+        return $this->hasMany(Visita::class);//'propiedad_id'
     }
    
     public function getImagenesListaAttribute(): array
@@ -49,5 +47,10 @@ class Propiedad extends Model
         }
 
        return ['img/sin-imagen.jpg'];
+    }
+
+    public function caracteristicas()
+    {
+        return $this->belongsToMany(Caracteristica::class, 'caracteristica_propiedad')->withTimestamps();
     }
 }
