@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\InmobiliariaController;
 use Illuminate\Support\Facades\Route;
@@ -20,3 +21,8 @@ Route::prefix('chatbot')->group(function () {
     Route::post('/visita', [ChatbotController::class, 'agendarVisita']);
     Route::post('/tasacion', [ChatbotController::class, 'calcularTasacion']);
 });
+
+// Autenticación nativa con Auth de Laravel
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/registro', [AuthController::class, 'register'])->name('registro.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');

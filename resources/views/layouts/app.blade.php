@@ -29,6 +29,8 @@
 
         @include('componentes.footer')
 
+        @include('componentes.modales-auth')
+
         <!-- VENTANA DEL CHATBOT (Empieza oculta gracias a d-none) -->
         <div id="ventanaChatbot" class="ventana-bot shadow-lg d-none">
             <!-- Encabezado del chat -->

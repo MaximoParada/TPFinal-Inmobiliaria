@@ -1,6 +1,167 @@
+//-------------------------------------AUTH FLOTANTE Y PERFIL------------------------------------//
+function abrirModalAuth(vista = 'login') {
+  const modal = document.getElementById('modalAuth');
+  if (!modal) {
+    console.warn('No se encontró #modalAuth en el DOM.');
+    return;
+  }
+  modal.classList.remove('d-none');
+  modal.style.display = 'flex';
+  cambiarVistaAuth(vista);
+}
+
+function cerrarModalAuth() {
+  const modal = document.getElementById('modalAuth');
+  if (modal) {
+    modal.classList.add('d-none');
+    modal.style.display = '';
+  }
+  ocultarAlertaAuth();
+}
+
+function cambiarVistaAuth(vista) {
+  const formLogin = document.getElementById('formLoginFlotante');
+  const formRegistro = document.getElementById('formRegistroFlotante');
+  const titulo = document.getElementById('tituloModalAuth');
+
+  ocultarAlertaAuth();
+
+  if (vista === 'register') {
+    formLogin?.classList.add('d-none');
+    formRegistro?.classList.remove('d-none');
+    if (titulo) titulo.textContent = 'Crear cuenta';
+  } else {
+    formRegistro?.classList.add('d-none');
+    formLogin?.classList.remove('d-none');
+    if (titulo) titulo.textContent = 'Iniciar sesión';
+  }
+}
+
+function abrirModalPerfil() {
+  const modal = document.getElementById('modalPerfil');
+  if (!modal) return;
+  modal.classList.remove('d-none');
+  modal.style.display = 'flex';
+}
+
+function cerrarModalPerfil() {
+  const modal = document.getElementById('modalPerfil');
+  if (modal) {
+    modal.classList.add('d-none');
+    modal.style.display = '';
+  }
+}
+
+function mostrarAlertaAuth(mensajes) {
+  const alerta = document.getElementById('alertaAuth');
+  if (!alerta) return;
+  const lista = Array.isArray(mensajes) ? mensajes : [mensajes];
+  alerta.innerHTML = lista.map((m) => `<div>${m}</div>`).join('');
+  alerta.classList.remove('d-none');
+}
+
+function ocultarAlertaAuth() {
+  const alerta = document.getElementById('alertaAuth');
+  if (!alerta) return;
+  alerta.innerHTML = '';
+  alerta.classList.add('d-none');
+}
+
 //-----------------------------------------INICIO & TASACIONES-----------------------------------------------//
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 0. EVENTOS DE AUTH FLOTANTE Y PERFIL
+  const inputPass = document.getElementById('reg_password');
+  const reglaMayus = document.getElementById('reglaMayuscula');
+  const reglaNum = document.getElementById('reglaNumero');
+
+  const validarPasswordEnVivo = () => {
+    if (!inputPass) return false;
+    const val = inputPass.value;
+    const tieneMayus = /[A-Z]/.test(val);
+    const tieneNum = /\d/.test(val);
+
+    if (reglaMayus) {
+      reglaMayus.classList.toggle('regla-ok', tieneMayus);
+      reglaMayus.classList.toggle('regla-pendiente', !tieneMayus);
+    }
+    if (reglaNum) {
+      reglaNum.classList.toggle('regla-ok', tieneNum);
+      reglaNum.classList.toggle('regla-pendiente', !tieneNum);
+    }
+
+    return tieneMayus && tieneNum;
+  };
+
+  if (inputPass) {
+    inputPass.addEventListener('input', validarPasswordEnVivo);
+  }
+
+  const enviarFormAuth = async (form, esRegistro = false) => {
+    ocultarAlertaAuth();
+
+    if (esRegistro && !validarPasswordEnVivo()) {
+      mostrarAlertaAuth('La contraseña debe tener al menos una mayúscula y un número.');
+      return;
+    }
+
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    try {
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrf,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data.ok) {
+        window.location.href = data.redirect || '/';
+        return;
+      }
+
+      if (data.errors) {
+        const erroresPlanos = Object.values(data.errors).flat();
+        mostrarAlertaAuth(erroresPlanos);
+      } else {
+        mostrarAlertaAuth(data.mensaje || 'No se pudo completar la operación.');
+      }
+    } catch (err) {
+      mostrarAlertaAuth('Error de conexión al intentar procesar la solicitud.');
+    }
+  };
+
+  const formLogin = document.getElementById('formLoginFlotante');
+  if (formLogin) {
+    formLogin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      enviarFormAuth(formLogin, false);
+    });
+  }
+
+  const formRegistro = document.getElementById('formRegistroFlotante');
+  if (formRegistro) {
+    formRegistro.addEventListener('submit', (e) => {
+      e.preventDefault();
+      enviarFormAuth(formRegistro, true);
+    });
+  }
+
+  document.getElementById('modalAuth')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modalAuth') cerrarModalAuth();
+  });
+
+  document.getElementById('modalPerfil')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modalPerfil') cerrarModalPerfil();
+  });
+
   // 1. BUSCADOR DE PROPIEDADES EN INICIO
   const formBuscador = document.getElementById('form-buscador');
   const contenedorTarjetas = document.getElementById('contenedor-tarjetas');
@@ -137,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ventana.classList.remove('d-none');
       }
 
-      if (!yaSaludo) {
+      if (botui && !yaSaludo) {
         yaSaludo = true;
         await botui.message.add({
           delay: 300,
@@ -168,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const resultado = respuesta.ok ? await respuesta.json() : null;
 
-        if (resultado && resultado.ok) {
+        if (resultado && resultado.ok && botui) {
           await botui.message.add({
             type: 'html',
             delay: 400,
@@ -191,16 +352,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const estimado = Math.round(metros * valorM2);
       const estimadoFormateado = '$' + estimado.toLocaleString('es-AR');
 
-      await botui.message.add({
-        type: 'html',
-        delay: 400,
-        loading: true,
-        content: (nombre ? '¡Hola ' + nombre + '! ' : '') +
-                 '<strong>Tasación estimada (' + zona + ')</strong><br>' +
-                 'Tipo: ' + tipoPropiedad + ' — Operación: ' + operacion + ' (' + metros + ' m²)<br>' +
-                 'Valor aproximado: <strong>' + estimadoFormateado + '</strong><br>' +
-                 '<small>Un asesor de LoncoProp revisará los datos para afinar el informe.</small>'
-      });
+      if (botui) {
+        await botui.message.add({
+          type: 'html',
+          delay: 400,
+          loading: true,
+          content: (nombre ? '¡Hola ' + nombre + '! ' : '') +
+                   '<strong>Tasación estimada (' + zona + ')</strong><br>' +
+                   'Tipo: ' + tipoPropiedad + ' — Operación: ' + operacion + ' (' + metros + ' m²)<br>' +
+                   'Valor aproximado: <strong>' + estimadoFormateado + '</strong><br>' +
+                   '<small>Un asesor de LoncoProp revisará los datos para afinar el informe.</small>'
+        });
+      }
 
       formularioTasacion.reset();
       mostrarMenu('¿Te puedo ayudar en algo más?');
@@ -338,7 +501,7 @@ function renderizarTarjetasDesdeJson(propiedades) {
 
 //-------------------------------------CHATBOT CON BOTUI------------------------------------//
 
-const botui = new BotUI('lonco-botui');
+const botui = document.getElementById('lonco-botui') ? new BotUI('lonco-botui') : null;
 let yaSaludo = false;
 let idBusquedaActual = 0;
 
@@ -346,7 +509,7 @@ function toggleChatbot() {
   const ventana = document.getElementById('ventanaChatbot');
   ventana.classList.toggle('d-none');
 
-  if (!ventana.classList.contains('d-none') && !yaSaludo) {
+  if (!ventana.classList.contains('d-none') && !yaSaludo && botui) {
     yaSaludo = true;
     iniciarConversacion();
   }
@@ -369,6 +532,7 @@ async function enviarPost(url, datos) {
 }
 
 async function iniciarConversacion() {
+  if (!botui) return;
   await botui.message.add({
     delay: 400,
     loading: true,
@@ -379,6 +543,7 @@ async function iniciarConversacion() {
 }
 
 async function mostrarMenu(pregunta) {
+  if (!botui) return;
   limpiarExtrasInput();
 
   await botui.message.add({
@@ -415,7 +580,7 @@ function salirDelChat() {
   idBusquedaActual++;
   limpiarExtrasInput();
   document.getElementById('ventanaChatbot').classList.add('d-none');
-  botui.message.removeAll();
+  if (botui) botui.message.removeAll();
   yaSaludo = false;
 }
 
@@ -427,6 +592,7 @@ function limpiarExtrasInput() {
 }
 
 async function verRespuesta(clave) {
+  if (!botui) return;
   const respuesta = await fetch('/chatbot/respuesta/' + clave);
   const datos = await respuesta.json();
 
@@ -441,6 +607,7 @@ async function verRespuesta(clave) {
 }
 
 async function flujoOtraPregunta() {
+  if (!botui) return;
   let yaRespondio = false;
   limpiarExtrasInput();
 
@@ -561,6 +728,7 @@ async function flujoOtraPregunta() {
 }
 
 async function procesarTextoEscrito(texto) {
+  if (!botui) return;
   const datos = await enviarPost('/chatbot/buscar-palabra', { texto: texto });
 
   if (!datos.ok) {
@@ -597,6 +765,7 @@ async function procesarTextoEscrito(texto) {
 }
 
 async function flujoVisita() {
+  if (!botui) return;
   await botui.message.add({ delay: 300, content: 'Ingresá el código de la propiedad (ej: 101, 102, 103):' });
   const codigo = await botui.action.text({ action: { placeholder: 'Código...' } });
 
