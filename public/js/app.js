@@ -1158,11 +1158,14 @@ function calcularValorM2Referencia(zona, tipo, operacion) {
   return baseM2;
 }
 
+
 // TURNERO (fullcalendar, turnocontroller y ajax)
 document.addEventListener('DOMContentLoaded', function () {
     const appTurnero = document.getElementById('turneroApp');
+    // Si no estamos en la vista del turnero, cortamos acá para no ejecutar código innecesario
     if (!appTurnero) return;
 
+    // Leemos los datos que dejamos en los atributos data-* del HTML
     const esAdmin      = appTurnero.dataset.esAdmin === '1';
     const csrfToken    = appTurnero.dataset.csrf;
     const urlHabilitar = appTurnero.dataset.urlHabilitar;
@@ -1176,9 +1179,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let eventoSeleccionadoEl     = null;
     let turnoAdminSeleccionadoId = null;
 
+    // 1. Se inicializa la librería FullCalendar llamando a new FullCalendar.Calendar()
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'es',
+        initialView: 'dayGridMonth', // Vista mensual por defecto
+        locale: 'es',                // Idioma español
         height: 'auto',
         headerToolbar: {
             left: 'prev,next today',
@@ -1187,22 +1191,26 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         buttonText: { today: 'Hoy', month: 'Mes', list: 'Lista' },
 
+        // La librería llama a esta función cada vez que necesita cargar o refrescar los turnos
         events: function (info, successCallback, failureCallback) {
             const propId = selectPropiedad.value;
             if (!propId) return successCallback([]);
 
+            // Pedimos los turnos en JSON a nuestro TurnoController
             fetch(`/turnero/eventos/${propId}`)
                 .then(res => res.json())
                 .then(data => successCallback(data))
                 .catch(err => failureCallback(err));
         },
 
+        // Asignamos clase CSS según si el turno está libre (negro) o reservado (rojo)
         eventClassNames: function (arg) {
             return arg.event.extendedProps.estado === 'confirmada'
                 ? ['fc-event-ocupado']
                 : ['fc-event-libre'];
         },
 
+        // Callback de FullCalendar cuando el usuario toca un día vacío en la grilla
         dateClick: function (info) {
             if (!esAdmin) return;
             const inputFecha = document.getElementById('adminFecha');
@@ -1211,9 +1219,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         },
 
+        // Callback de FullCalendar cuando el usuario toca un turno cargado en el calendario
         eventClick: function (info) {
             const props = info.event.extendedProps;
 
+            // --- Si es ADMIN: mostramos detalle del turno (libre o reservado) ---
             if (esAdmin) {
                 const box    = document.getElementById('detalleTurnoAdmin');
                 const txt    = document.getElementById('textoDetalleAdmin');
@@ -1232,6 +1242,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // --- Si es USUARIO: marcamos en verde el horario elegido y habilitamos el botón ---
             if (eventoSeleccionadoEl) {
                 eventoSeleccionadoEl.classList.remove('fc-event-seleccionado');
             }
@@ -1245,8 +1256,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ponemos el calendario en pantalla
     calendar.render();
 
+    // 2. Cuando cambia la propiedad seleccionada en el <select>
     selectPropiedad.addEventListener('change', function () {
         const propId = this.value;
 
@@ -1278,10 +1291,12 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('btnConfirmarReserva').disabled = true;
         }
 
+        // Ajustamos el tamaño de FullCalendar y pedimos los eventos de la propiedad elegida
         calendar.updateSize();
         calendar.refetchEvents();
     });
 
+    // 3. LÓGICA DEL ADMIN: Habilitar horarios y eliminar horarios libres
     if (esAdmin) {
         const formAdmin   = document.getElementById('formAdminHabilitar');
         const alertaAdmin = document.getElementById('alertaAdmin');
@@ -1289,6 +1304,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formAdmin.addEventListener('submit', function (e) {
             e.preventDefault();
 
+            // Juntamos los chips marcados + el horario puntual opcional
             const horas = Array.from(document.querySelectorAll('.check-hora:checked')).map(c => c.value);
             const extra = document.getElementById('horaExtra').value;
             if (extra && !horas.includes(extra)) horas.push(extra);
@@ -1300,6 +1316,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // Enviamos los datos al controlador por POST
             fetch(urlHabilitar, {
                 method: 'POST',
                 headers: {
@@ -1322,11 +1339,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (res.ok && data.ok) {
                     document.querySelectorAll('.check-hora').forEach(c => c.checked = false);
                     document.getElementById('horaExtra').value = '';
+                    // Refrescamos FullCalendar para que aparezcan los horarios recién creados
                     calendar.refetchEvents();
                 }
             });
         });
 
+        // Botón para eliminar un horario libre que todavía nadie reservó
         document.getElementById('btnEliminarTurno').addEventListener('click', function () {
             if (!turnoAdminSeleccionadoId) return;
 
@@ -1348,6 +1367,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // 4. LÓGICA DEL USUARIO: Confirmar la reserva del turno seleccionado
     if (!esAdmin) {
         const formUsuario   = document.getElementById('formUsuarioReservar');
         const alertaUsuario = document.getElementById('alertaUsuario');
@@ -1357,6 +1377,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             btnConfirmar.disabled = true;
 
+            // Enviamos únicamente el ID del turno elegido; el servidor toma los datos de Auth::user()
             fetch(urlReservar, {
                 method: 'POST',
                 headers: {
@@ -1374,6 +1395,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alertaUsuario.classList.add(res.ok && data.ok ? 'alert-success' : 'alert-danger');
                 alertaUsuario.textContent = data.mensaje || 'No se pudo confirmar.';
 
+                // Limpiamos la selección y recargamos el calendario (el turno reservado ya no aparece)
                 document.getElementById('inputTurnoId').value = '';
                 document.getElementById('resumenFecha').value = '';
                 eventoSeleccionadoEl = null;

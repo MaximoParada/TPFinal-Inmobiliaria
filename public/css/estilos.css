@@ -1535,3 +1535,83 @@ body {
   padding: 6px 14px;
   font-size: 0.8rem;
 }
+
+
+#turneroApp {
+  max-width: 1140px;
+}
+
+#calendar {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+
+.fc .fc-toolbar-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: #111111;
+}
+
+/* botones de navegación de fullcalendar (hoy, mes, lista, flechas) */
+.fc .fc-button-primary {
+  background-color: #141414;
+  border-color: #141414;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+}
+
+.fc .fc-button-primary:hover,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #333333;
+  border-color: #333333;
+}
+
+/*horario LIBRE dentro del calendario */
+.fc-event-libre {
+  background-color: #141414 !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  padding: 3px 9px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+
+/* horario RESERVADO (solo lo puede ver el admin) */
+.fc-event-ocupado {
+  background-color: #dc2626 !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  padding: 3px 9px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+
+/* resaltado verde cuando el usuario hace clic sobre un turno */
+.fc-event-seleccionado {
+  background-color: #16a34a !important;
+}
+
+/* botones para horarios del admin*/
+.hora-chip {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.btn-check:checked + .hora-chip {
+  background-color: #141414;
+  color: #ffffff;
+  border-color: #141414;
+}
