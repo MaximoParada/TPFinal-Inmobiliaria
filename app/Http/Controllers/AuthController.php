@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -45,6 +46,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
             'telefono' => ['required', 'string', 'max:50'],
+            'direccion' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
             'password' => [
                 'required',
@@ -55,6 +57,7 @@ class AuthController extends Controller
             'name.required' => 'Ingresá tu nombre.',
             'apellido.required' => 'Ingresá tu apellido.',
             'telefono.required' => 'Ingresá tu teléfono.',
+            'direccion.required' => 'Ingresá tu dirección.',
             'email.required' => 'Ingresá tu correo electrónico.',
             'email.email' => 'Ingresá un correo válido.',
             'email.unique' => 'Ese correo ya está registrado.',
@@ -68,6 +71,7 @@ class AuthController extends Controller
             'name' => trim($datos['name']),
             'apellido' => trim($datos['apellido']),
             'telefono' => trim($datos['telefono']),
+            'direccion' => trim($datos['direccion']),
             'email' => strtolower(trim($datos['email'])),
             'password' => $datos['password'],
             'rol' => 'user',
@@ -81,6 +85,76 @@ class AuthController extends Controller
                 'ok' => true,
                 'redirect' => route('inicio'),
             ], 201);
+        }
+
+        return redirect()->route('inicio');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $usuario = $request->user();
+
+        $datos = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'apellido' => ['required', 'string', 'max:100'],
+            'telefono' => ['required', 'string', 'max:50'],
+            'direccion' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:150',
+                Rule::unique('users', 'email')->ignore($usuario->id),
+            ],
+        ], [
+            'name.required' => 'Ingresá tu nombre.',
+            'apellido.required' => 'Ingresá tu apellido.',
+            'telefono.required' => 'Ingresá tu teléfono.',
+            'direccion.required' => 'Ingresá tu dirección.',
+            'email.required' => 'Ingresá tu correo electrónico.',
+            'email.email' => 'Ingresá un correo válido.',
+            'email.unique' => 'Ese correo ya está en uso por otra cuenta.',
+        ]);
+
+        $usuario->update([
+            'name' => trim($datos['name']),
+            'apellido' => trim($datos['apellido']),
+            'telefono' => trim($datos['telefono']),
+            'direccion' => trim($datos['direccion']),
+            'email' => strtolower(trim($datos['email'])),
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'mensaje' => 'Datos actualizados correctamente.',
+                'usuario' => [
+                    'name' => $usuario->name,
+                    'apellido' => $usuario->apellido,
+                    'email' => $usuario->email,
+                    'telefono' => $usuario->telefono,
+                    'direccion' => $usuario->direccion,
+                ],
+            ]);
+        }
+
+        return back();
+    }
+
+    public function destroyAccount(Request $request)
+    {
+        $usuario = $request->user();
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $usuario->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'redirect' => route('inicio'),
+            ]);
         }
 
         return redirect()->route('inicio');

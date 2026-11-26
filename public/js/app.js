@@ -5,6 +5,7 @@ function abrirModalAuth(vista = 'login') {
     console.warn('No se encontró #modalAuth en el DOM.');
     return;
   }
+  limpiarCamposAuth();
   modal.classList.remove('d-none');
   modal.style.display = 'flex';
   cambiarVistaAuth(vista);
@@ -16,7 +17,7 @@ function cerrarModalAuth() {
     modal.classList.add('d-none');
     modal.style.display = '';
   }
-  ocultarAlertaAuth();
+  limpiarCamposAuth();
 }
 
 function cambiarVistaAuth(vista) {
@@ -40,6 +41,7 @@ function cambiarVistaAuth(vista) {
 function abrirModalPerfil() {
   const modal = document.getElementById('modalPerfil');
   if (!modal) return;
+  resetearVistasPerfil();
   modal.classList.remove('d-none');
   modal.style.display = 'flex';
 }
@@ -50,6 +52,82 @@ function cerrarModalPerfil() {
     modal.classList.add('d-none');
     modal.style.display = '';
   }
+  resetearVistasPerfil();
+}
+
+function ocultarMensajesPerfil() {
+  const alerta = document.getElementById('alertaPerfil');
+  const exito = document.getElementById('exitoPerfil');
+  if (alerta) {
+    alerta.innerHTML = '';
+    alerta.classList.add('d-none');
+  }
+  if (exito) {
+    exito.textContent = '';
+    exito.classList.add('d-none');
+  }
+}
+
+function mostrarAlertaPerfil(mensajes) {
+  const alerta = document.getElementById('alertaPerfil');
+  if (!alerta) return;
+  const lista = Array.isArray(mensajes) ? mensajes : [mensajes];
+  alerta.innerHTML = lista.map((m) => `<div>${m}</div>`).join('');
+  alerta.classList.remove('d-none');
+}
+
+function mostrarExitoPerfil(mensaje) {
+  const exito = document.getElementById('exitoPerfil');
+  if (!exito) return;
+  exito.textContent = mensaje;
+  exito.classList.remove('d-none');
+}
+
+function resetearVistasPerfil() {
+  const lectura = document.getElementById('vistaLecturaPerfil');
+  const edicion = document.getElementById('formEditarPerfil');
+  const confirmar = document.getElementById('vistaConfirmarEliminar');
+  const titulo = document.getElementById('tituloModalPerfil');
+
+  lectura?.classList.remove('d-none');
+  edicion?.classList.add('d-none');
+  confirmar?.classList.add('d-none');
+  if (titulo) titulo.textContent = 'Mi perfil';
+  ocultarMensajesPerfil();
+}
+
+function mostrarEdicionPerfil() {
+  const lectura = document.getElementById('vistaLecturaPerfil');
+  const edicion = document.getElementById('formEditarPerfil');
+  const confirmar = document.getElementById('vistaConfirmarEliminar');
+  const titulo = document.getElementById('tituloModalPerfil');
+
+  ocultarMensajesPerfil();
+  lectura?.classList.add('d-none');
+  confirmar?.classList.add('d-none');
+  edicion?.classList.remove('d-none');
+  if (titulo) titulo.textContent = 'Modificar datos';
+}
+
+function cancelarEdicionPerfil() {
+  resetearVistasPerfil();
+}
+
+function mostrarConfirmacionEliminar() {
+  const lectura = document.getElementById('vistaLecturaPerfil');
+  const edicion = document.getElementById('formEditarPerfil');
+  const confirmar = document.getElementById('vistaConfirmarEliminar');
+  const titulo = document.getElementById('tituloModalPerfil');
+
+  ocultarMensajesPerfil();
+  lectura?.classList.add('d-none');
+  edicion?.classList.add('d-none');
+  confirmar?.classList.remove('d-none');
+  if (titulo) titulo.textContent = 'Eliminar cuenta';
+}
+
+function cancelarConfirmacionEliminar() {
+  resetearVistasPerfil();
 }
 
 function mostrarAlertaAuth(mensajes) {
@@ -67,10 +145,35 @@ function ocultarAlertaAuth() {
   alerta.classList.add('d-none');
 }
 
+function limpiarCamposAuth() {
+  const formLogin = document.getElementById('formLoginFlotante');
+  const formRegistro = document.getElementById('formRegistroFlotante');
+
+  if (formLogin) {
+    formLogin.reset();
+    const loginEmail = document.getElementById('login_email');
+    const loginPass = document.getElementById('login_password');
+    if (loginEmail) loginEmail.value = '';
+    if (loginPass) loginPass.value = '';
+  }
+
+  if (formRegistro) {
+    formRegistro.reset();
+    const regPass = document.getElementById('reg_password');
+    if (regPass) regPass.value = '';
+    document.getElementById('reglaMayuscula')?.classList.replace('regla-ok', 'regla-pendiente');
+    document.getElementById('reglaNumero')?.classList.replace('regla-ok', 'regla-pendiente');
+  }
+
+  ocultarAlertaAuth();
+}
+
 //-----------------------------------------INICIO & TASACIONES-----------------------------------------------//
 
 document.addEventListener('DOMContentLoaded', () => {
   // 0. EVENTOS DE AUTH FLOTANTE Y PERFIL
+  limpiarCamposAuth();
+
   const inputPass = document.getElementById('reg_password');
   const reglaMayus = document.getElementById('reglaMayuscula');
   const reglaNum = document.getElementById('reglaNumero');
@@ -123,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await resp.json();
 
       if (resp.ok && data.ok) {
+        limpiarCamposAuth();
         window.location.href = data.redirect || '/';
         return;
       }
@@ -151,6 +255,115 @@ document.addEventListener('DOMContentLoaded', () => {
     formRegistro.addEventListener('submit', (e) => {
       e.preventDefault();
       enviarFormAuth(formRegistro, true);
+    });
+  }
+
+  const formEditarPerfil = document.getElementById('formEditarPerfil');
+  if (formEditarPerfil) {
+    formEditarPerfil.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ocultarMensajesPerfil();
+
+      const formData = new FormData(formEditarPerfil);
+      const payload = Object.fromEntries(formData.entries());
+      const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      try {
+        const resp = await fetch(formEditarPerfil.action, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrf,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok && data.ok) {
+          const u = data.usuario;
+          if (u) {
+            const txtNombre = document.getElementById('perfilTextoNombre');
+            const txtEmail = document.getElementById('perfilTextoEmail');
+            const txtTel = document.getElementById('perfilTextoTelefono');
+            const txtDir = document.getElementById('perfilTextoDireccion');
+            if (txtNombre) txtNombre.textContent = `${u.name} ${u.apellido}`;
+            if (txtEmail) txtEmail.textContent = u.email;
+            if (txtTel) txtTel.textContent = u.telefono || 'No especificado';
+            if (txtDir) txtDir.textContent = u.direccion || 'No especificada';
+          }
+          resetearVistasPerfil();
+          mostrarExitoPerfil(data.mensaje || 'Datos actualizados correctamente.');
+          return;
+        }
+
+        if (data.errors) {
+          mostrarAlertaPerfil(Object.values(data.errors).flat());
+        } else {
+          mostrarAlertaPerfil(data.mensaje || 'No se pudieron guardar los cambios.');
+        }
+      } catch (err) {
+        mostrarAlertaPerfil('Error de conexión al intentar actualizar tus datos.');
+      }
+    });
+  }
+
+  const formEliminarCuenta = document.getElementById('formEliminarCuenta');
+  if (formEliminarCuenta) {
+    formEliminarCuenta.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ocultarMensajesPerfil();
+
+      const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      try {
+        const resp = await fetch(formEliminarCuenta.action, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrf,
+          },
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok && data.ok) {
+          limpiarCamposAuth();
+          cerrarModalPerfil();
+          window.location.href = data.redirect || '/';
+          return;
+        }
+
+        mostrarAlertaPerfil(data.mensaje || 'No se pudo eliminar la cuenta.');
+      } catch (err) {
+        mostrarAlertaPerfil('Error de conexión al intentar eliminar la cuenta.');
+      }
+    });
+  }
+
+  const formLogout = document.getElementById('formLogoutFlotante');
+  if (formLogout) {
+    formLogout.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      try {
+        await fetch(formLogout.action, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrf,
+          },
+        });
+      } catch (err) {
+        console.warn('Error al cerrar sesión por fetch:', err);
+      }
+
+      limpiarCamposAuth();
+      cerrarModalPerfil();
+      window.location.href = '/';
     });
   }
 

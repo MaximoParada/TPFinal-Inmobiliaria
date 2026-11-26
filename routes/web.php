@@ -37,3 +37,8 @@ Route::middleware(['auth', 'CheckRole'])->group(function () {
     Route::put('/propiedades/{propiedad}', [PropiedadController::class, 'update'])->name('propiedades.update');
     Route::delete('/propiedades/{propiedad}', [PropiedadController::class, 'destroy'])->name('propiedades.destroy');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::put('/perfil', [AuthController::class, 'updateProfile'])->name('perfil.update');
+    Route::delete('/perfil', [AuthController::class, 'destroyAccount'])->name('perfil.destroy');
+});
