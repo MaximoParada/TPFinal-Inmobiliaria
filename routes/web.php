@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/turnero/habilitar', [TurnoController::class, 'habilitar'])->name('turnero.habilitar');
     Route::delete('/turnero/eliminar/{id}', [TurnoController::class, 'eliminar'])->name('turnero.eliminar');
     Route::post('/turnero/reservar', [TurnoController::class, 'reservar'])->name('turnero.reservar');
+});
+
 //rutas del middleware y CRUD
 Route::middleware(['auth', 'CheckRole'])->group(function () {
     Route::get('/propiedades/crear', [PropiedadController::class, 'create'])->name('propiedades.create');
