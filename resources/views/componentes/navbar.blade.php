@@ -12,18 +12,14 @@
             <li>
                 <a href="{{ url('/tasaciones') }}" class="{{ request()->is('tasaciones') ? 'active' : '' }}">Tasaciones</a>
             </li>
+            <li>
+                <a href="{{ url('/turnero') }}" class="{{ request()->is('turnero') ? 'active' : '' }}">Turnero</a>
+            </li>
 
             @auth
-                @if (auth()->user()->rol === 'user')
-                    <li>
-                        <a href="{{ url('/turnero') }}" class="{{ request()->is('turnero') ? 'active' : '' }}">Turnero</a>
-                    </li>
-                @elseif (auth()->user()->rol === 'admin')
+                @if (auth()->user()->rol === 'admin')
                     <li>
                         <a href="{{ url('/admin/propiedades') }}" class="{{ request()->is('admin/propiedades*') ? 'active' : '' }}">Propiedades</a>
-                    </li>
-                    <li>
-                        <a href="{{ url('/admin/turnero') }}" class="{{ request()->is('admin/turnero*') ? 'active' : '' }}">Turnero Admin</a>
                     </li>
                 @endif
             @endauth

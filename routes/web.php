@@ -4,16 +4,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\InmobiliariaController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TurnoController;
 
 // Vistas principales
 Route::get('/', [InmobiliariaController::class, 'inicio'])->name('inicio');
 Route::get('/nosotros', [InmobiliariaController::class, 'nosotros'])->name('nosotros');
 Route::get('/tasaciones', [InmobiliariaController::class, 'tasaciones'])->name('tasaciones');
+Route::get('/turnero', [TurnoController::class, 'turnero'])->name('turnero');
 
 // Filtro AJAX del buscador
 Route::get('/propiedades/filtrar', [InmobiliariaController::class, 'filtrar'])->name('propiedades.filtrar');
 
-// Endpoints del Chatbot (BotUI)
+// chatbot con botui
 Route::prefix('chatbot')->group(function () {
     Route::get('/respuesta/{clave}', [ChatbotController::class, 'obtenerRespuesta']);
     Route::post('/buscar-palabra', [ChatbotController::class, 'buscarPorPalabra']);
@@ -26,3 +28,12 @@ Route::prefix('chatbot')->group(function () {
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/registro', [AuthController::class, 'register'])->name('registro.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+// Rutas internas (con AJAX) que requieren que el usuario haya iniciado sesión
+Route::middleware('auth')->group(function () {
+    Route::get('/turnero/eventos/{propiedad_id}', [TurnoController::class, 'eventos'])->name('turnero.eventos');
+    Route::post('/turnero/habilitar', [TurnoController::class, 'habilitar'])->name('turnero.habilitar');
+    Route::delete('/turnero/eliminar/{id}', [TurnoController::class, 'eliminar'])->name('turnero.eliminar');
+    Route::post('/turnero/reservar', [TurnoController::class, 'reservar'])->name('turnero.reservar');
+});
