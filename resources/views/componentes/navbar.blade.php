@@ -6,9 +6,6 @@
             <li>
                 <a href="{{ url('/') }}" class="lp-nav-link {{ request()->is('/') ? 'active' : '' }}">Inicio</a>
             </li>
-            <li>
-                <a href="{{ url('/turnero') }}" class="{{ request()->is('turnero') ? 'active' : '' }}">Turnero</a>
-            </li>
 
             @guest
                 <li>
@@ -20,7 +17,7 @@
             @else
                 @if (auth()->user()->rol === 'admin')
                     <li>
-                        <a href="{{ url('/admin/turnero') }}" class="lp-nav-link {{ request()->is('admin/turnero*') ? 'active' : '' }}">Calendario</a>
+                        <a href="{{ route('turnero') }}" class="lp-nav-link {{ request()->is('turnero*') ? 'active' : '' }}">Calendario</a>
                     </li>
                 @else
                     <li>
@@ -30,7 +27,7 @@
                         <a href="{{ url('/#tasaciones') }}" class="lp-nav-link">Tasaciones</a>
                     </li>
                     <li>
-                        <a href="{{ url('/turnero') }}" class="lp-nav-link {{ request()->is('turnero*') ? 'active' : '' }}">Calendario</a>
+                        <a href="{{ route('turnero') }}" class="lp-nav-link {{ request()->is('turnero*') ? 'active' : '' }}">Calendario</a>
                     </li>
                 @endif
             @endauth

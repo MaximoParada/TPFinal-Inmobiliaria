@@ -7,10 +7,9 @@ use Illuminate\Http\Request;
 
 class InmobiliariaController extends Controller
 {
-    // Vista principal (Inicio) con las tarjetas de propiedades
     public function inicio(Request $request)
     {
-        $query = Propiedad::query();
+        $query = Propiedad::with('caracteristicas');
 
         if ($request->filled('operacion')) {
             $query->where('operacion', $request->operacion);
@@ -30,22 +29,19 @@ class InmobiliariaController extends Controller
         return view('pagina.inicio', compact('propiedades'));
     }
 
-    // Vista Nosotros
     public function nosotros()
     {
         return view('pagina.nosotros');
     }
 
-    // Vista Tasaciones
     public function tasaciones()
     {
         return view('pagina.tasaciones');
     }
 
-    // Endpoint AJAX para el buscador de propiedades
     public function filtrar(Request $request)
     {
-        $query = Propiedad::query();
+        $query = Propiedad::with('caracteristicas');
 
         if ($request->filled('operacion')) {
             $query->where('operacion', $request->operacion);

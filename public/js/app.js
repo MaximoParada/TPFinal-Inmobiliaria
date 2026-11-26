@@ -168,9 +168,106 @@ function limpiarCamposAuth() {
   ocultarAlertaAuth();
 }
 
+//-------------------------------------DETALLE DE PROPIEDAD------------------------------------//
+const propiedadesPorId = new Map();
+
+function registrarPropiedadesIniciales() {
+  const scriptEl = document.getElementById('datos-propiedades-iniciales');
+  if (!scriptEl) return;
+
+  try {
+    const lista = JSON.parse(scriptEl.textContent || '[]');
+    if (Array.isArray(lista)) {
+      propiedadesPorId.clear();
+      lista.forEach((prop) => {
+        if (prop && prop.id !== undefined) {
+          propiedadesPorId.set(String(prop.id), prop);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('No se pudieron leer las propiedades iniciales:', err);
+  }
+}
+
+function normalizarImagenesPropiedad(prop) {
+  let imagenes = prop.imagenes_lista || prop.imagenes || ['img/sin-imagen.jpg'];
+  if (typeof imagenes === 'string') {
+    try { imagenes = JSON.parse(imagenes); } catch { imagenes = ['img/sin-imagen.jpg']; }
+  }
+  if (!Array.isArray(imagenes) || !imagenes.length) {
+    imagenes = ['img/sin-imagen.jpg'];
+  }
+  return imagenes.map((ruta) =>
+    /^https?:\/\//i.test(ruta) ? ruta : `/${String(ruta).replace(/^\/+/, '')}`
+  );
+}
+
+function abrirModalPropiedad(prop) {
+  const modal = document.getElementById('modalPropiedad');
+  if (!modal || !prop) return;
+
+  const opTexto = prop.operacion ? prop.operacion.charAt(0).toUpperCase() + prop.operacion.slice(1) : 'Propiedad';
+  const dormNum = Number(prop.dormitorios ?? 0);
+  const dormTexto = dormNum === 0
+    ? 'Monoambiente'
+    : `${dormNum} ${dormNum === 1 ? 'dormitorio' : 'dormitorios'}`;
+  const ambNum = Number(prop.ambientes ?? 0);
+  const ambTexto = `${ambNum} ${ambNum === 1 ? 'ambiente' : 'ambientes'}`;
+
+  document.getElementById('propModalBadge').textContent = opTexto;
+  document.getElementById('propModalTitulo').textContent = prop.titulo || '';
+  document.getElementById('propModalPrecio').textContent = `$${Number(prop.precio || 0).toLocaleString('es-AR')}`;
+  document.getElementById('propModalExpensas').textContent =
+    prop.expensas && Number(prop.expensas) > 0
+      ? `+ $${Number(prop.expensas).toLocaleString('es-AR')} expensas`
+      : 'Sin expensas';
+
+  document.getElementById('propModalDireccion').textContent = prop.direccion || 'No especificada';
+  document.getElementById('propModalZona').textContent = prop.zona || 'No especificada';
+  document.getElementById('propModalAmbientes').textContent = ambTexto;
+  document.getElementById('propModalDormitorios').textContent = dormTexto;
+  document.getElementById('propModalMetros').textContent = `${prop.metros_cuadrados ?? 0} m²`;
+  document.getElementById('propModalId').textContent = `#${prop.id}`;
+
+  const galeria = document.getElementById('propModalGaleria');
+  const imgs = normalizarImagenesPropiedad(prop);
+  galeria.innerHTML = imgs
+    .map((src, i) => `<img src="${src}" alt="${prop.titulo || 'Propiedad'} - foto ${i + 1}">`)
+    .join('');
+
+  const contCaract = document.getElementById('propModalCaracteristicas');
+  const listaCaract = Array.isArray(prop.caracteristicas) ? prop.caracteristicas : [];
+  if (listaCaract.length > 0) {
+    contCaract.innerHTML = listaCaract
+      .map((c) => {
+        const nombre = typeof c === 'string'
+          ? c
+          : (c.nombre || c.titulo || c.descripcion || '');
+        return nombre ? `<span class="lp-prop-tag">${nombre}</span>` : '';
+      })
+      .join('');
+  } else {
+    contCaract.innerHTML = '<span class="lp-prop-tag-vacio">Sin características adicionales cargadas.</span>';
+  }
+
+  modal.classList.remove('d-none');
+  modal.style.display = 'flex';
+}
+
+function cerrarModalPropiedad() {
+  const modal = document.getElementById('modalPropiedad');
+  if (modal) {
+    modal.classList.add('d-none');
+    modal.style.display = '';
+  }
+}
+
 //-----------------------------------------INICIO & TASACIONES-----------------------------------------------//
 
 document.addEventListener('DOMContentLoaded', () => {
+  registrarPropiedadesIniciales();
+
   // 0. EVENTOS DE AUTH FLOTANTE Y PERFIL
   limpiarCamposAuth();
 
@@ -373,6 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('modalPerfil')?.addEventListener('click', (e) => {
     if (e.target.id === 'modalPerfil') cerrarModalPerfil();
+  });
+
+  document.getElementById('modalPropiedad')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modalPropiedad') cerrarModalPropiedad();
   });
 
   // 1. BUSCADOR DE PROPIEDADES EN INICIO
@@ -588,10 +689,15 @@ function vincularClickTarjetas(scope) {
   const tarjetas = scope.querySelectorAll('.property-card');
 
   tarjetas.forEach((tarjeta) => {
-    tarjeta.addEventListener('click', () => {
-      const titulo = tarjeta.querySelector('.card-title')?.textContent.trim();
-      const ubicacion = tarjeta.querySelector('.card-location')?.textContent.trim();
-      console.log(`Propiedad seleccionada: ${titulo} - ${ubicacion}`);
+    tarjeta.addEventListener('click', (e) => {
+      if (e.target.closest('.carousel-btn') || e.target.closest('.carousel-dot')) {
+        return;
+      }
+      const id = String(tarjeta.dataset.id || '');
+      const prop = propiedadesPorId.get(id);
+      if (prop) {
+        abrirModalPropiedad(prop);
+      }
     });
   });
 }
@@ -640,6 +746,8 @@ function inicializarCarruseles(scope) {
 }
 
 function renderizarTarjetasDesdeJson(propiedades) {
+  propiedadesPorId.clear();
+
   if (!Array.isArray(propiedades) || !propiedades.length) {
     return `
       <div class="empty-properties">
@@ -652,16 +760,10 @@ function renderizarTarjetasDesdeJson(propiedades) {
   }
 
   return propiedades.map((prop) => {
-    let imagenes = prop.imagenes_lista || prop.imagenes || ['img/sin-imagen.jpg'];
-    if (typeof imagenes === 'string') {
-      try { imagenes = JSON.parse(imagenes); } catch { imagenes = ['img/sin-imagen.jpg']; }
-    }
-    if (!Array.isArray(imagenes) || !imagenes.length) {
-      imagenes = ['img/sin-imagen.jpg'];
-    }
+    propiedadesPorId.set(String(prop.id), prop);
+    const imagenes = normalizarImagenesPropiedad(prop);
 
-    const slidesHtml = imagenes.map((ruta, idx) => {
-      const src = /^https?:\/\//i.test(ruta) ? ruta : `/${ruta.replace(/^\/+/, '')}`;
+    const slidesHtml = imagenes.map((src, idx) => {
       return `<img src="${src}" alt="${prop.titulo} - Imagen ${idx + 1}" class="carousel-slide ${idx === 0 ? 'active' : ''}">`;
     }).join('');
 
@@ -1046,10 +1148,8 @@ function calcularValorM2Referencia(zona, tipo, operacion) {
 // TURNERO (fullcalendar, turnocontroller y ajax)
 document.addEventListener('DOMContentLoaded', function () {
     const appTurnero = document.getElementById('turneroApp');
-    // Si no estamos en la vista del turnero, cortamos acá para no ejecutar código innecesario
     if (!appTurnero) return;
 
-    // Leemos los datos que dejamos en los atributos data-* del HTML
     const esAdmin      = appTurnero.dataset.esAdmin === '1';
     const csrfToken    = appTurnero.dataset.csrf;
     const urlHabilitar = appTurnero.dataset.urlHabilitar;
@@ -1063,10 +1163,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let eventoSeleccionadoEl     = null;
     let turnoAdminSeleccionadoId = null;
 
-    // 1. Se inicializa la librería FullCalendar llamando a new FullCalendar.Calendar()
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth', // Vista mensual por defecto
-        locale: 'es',                // Idioma español
+        initialView: 'dayGridMonth',
+        locale: 'es',
         height: 'auto',
         headerToolbar: {
             left: 'prev,next today',
@@ -1075,26 +1174,22 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         buttonText: { today: 'Hoy', month: 'Mes', list: 'Lista' },
 
-        // La librería llama a esta función cada vez que necesita cargar o refrescar los turnos
         events: function (info, successCallback, failureCallback) {
             const propId = selectPropiedad.value;
             if (!propId) return successCallback([]);
 
-            // Pedimos los turnos en JSON a nuestro TurnoController
             fetch(`/turnero/eventos/${propId}`)
                 .then(res => res.json())
                 .then(data => successCallback(data))
                 .catch(err => failureCallback(err));
         },
 
-        // Asignamos clase CSS según si el turno está libre (negro) o reservado (rojo)
         eventClassNames: function (arg) {
             return arg.event.extendedProps.estado === 'confirmada'
                 ? ['fc-event-ocupado']
                 : ['fc-event-libre'];
         },
 
-        // Callback de FullCalendar cuando el usuario toca un día vacío en la grilla
         dateClick: function (info) {
             if (!esAdmin) return;
             const inputFecha = document.getElementById('adminFecha');
@@ -1103,11 +1198,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         },
 
-        // Callback de FullCalendar cuando el usuario toca un turno cargado en el calendario
         eventClick: function (info) {
             const props = info.event.extendedProps;
 
-            // --- Si es ADMIN: mostramos detalle del turno (libre o reservado) ---
             if (esAdmin) {
                 const box    = document.getElementById('detalleTurnoAdmin');
                 const txt    = document.getElementById('textoDetalleAdmin');
@@ -1126,7 +1219,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // --- Si es USUARIO: marcamos en verde el horario elegido y habilitamos el botón ---
             if (eventoSeleccionadoEl) {
                 eventoSeleccionadoEl.classList.remove('fc-event-seleccionado');
             }
@@ -1140,10 +1232,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // ponemos el calendario en pantalla
     calendar.render();
 
-    // 2. Cuando cambia la propiedad seleccionada en el <select>
     selectPropiedad.addEventListener('change', function () {
         const propId = this.value;
 
@@ -1175,12 +1265,10 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('btnConfirmarReserva').disabled = true;
         }
 
-        // Ajustamos el tamaño de FullCalendar y pedimos los eventos de la propiedad elegida
         calendar.updateSize();
         calendar.refetchEvents();
     });
 
-    // 3. LÓGICA DEL ADMIN: Habilitar horarios y eliminar horarios libres
     if (esAdmin) {
         const formAdmin   = document.getElementById('formAdminHabilitar');
         const alertaAdmin = document.getElementById('alertaAdmin');
@@ -1188,7 +1276,6 @@ document.addEventListener('DOMContentLoaded', function () {
         formAdmin.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Juntamos los chips marcados + el horario puntual opcional
             const horas = Array.from(document.querySelectorAll('.check-hora:checked')).map(c => c.value);
             const extra = document.getElementById('horaExtra').value;
             if (extra && !horas.includes(extra)) horas.push(extra);
@@ -1200,7 +1287,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Enviamos los datos al controlador por POST
             fetch(urlHabilitar, {
                 method: 'POST',
                 headers: {
@@ -1223,13 +1309,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (res.ok && data.ok) {
                     document.querySelectorAll('.check-hora').forEach(c => c.checked = false);
                     document.getElementById('horaExtra').value = '';
-                    // Refrescamos FullCalendar para que aparezcan los horarios recién creados
                     calendar.refetchEvents();
                 }
             });
         });
 
-        // Botón para eliminar un horario libre que todavía nadie reservó
         document.getElementById('btnEliminarTurno').addEventListener('click', function () {
             if (!turnoAdminSeleccionadoId) return;
 
@@ -1251,7 +1335,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 4. LÓGICA DEL USUARIO: Confirmar la reserva del turno seleccionado
     if (!esAdmin) {
         const formUsuario   = document.getElementById('formUsuarioReservar');
         const alertaUsuario = document.getElementById('alertaUsuario');
@@ -1261,7 +1344,6 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             btnConfirmar.disabled = true;
 
-            // Enviamos únicamente el ID del turno elegido; el servidor toma los datos de Auth::user()
             fetch(urlReservar, {
                 method: 'POST',
                 headers: {
@@ -1279,7 +1361,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 alertaUsuario.classList.add(res.ok && data.ok ? 'alert-success' : 'alert-danger');
                 alertaUsuario.textContent = data.mensaje || 'No se pudo confirmar.';
 
-                // Limpiamos la selección y recargamos el calendario (el turno reservado ya no aparece)
                 document.getElementById('inputTurnoId').value = '';
                 document.getElementById('resumenFecha').value = '';
                 eventoSeleccionadoEl = null;
@@ -1288,4 +1369,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-

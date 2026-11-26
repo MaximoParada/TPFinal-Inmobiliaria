@@ -140,4 +140,61 @@
     </div>
   </section>
 
+  <!-- JSON INICIAL DE PROPIEDADES CON CARACTERÍSTICAS -->
+  <script type="application/json" id="datos-propiedades-iniciales">
+    @json(($propiedades ?? collect())->unique('id')->values())
+  </script>
+
+  <!-- FLOTANTE DETALLE COMPLETO DE PROPIEDAD -->
+  <div id="modalPropiedad" class="lp-modal-backdrop d-none" aria-hidden="true">
+    <div class="lp-modal-card lp-modal-propiedad" role="dialog" aria-modal="true" aria-labelledby="propModalTitulo">
+      <div class="lp-modal-header">
+        <div>
+          <span id="propModalBadge" class="lp-prop-badge"></span>
+          <h2 id="propModalTitulo" class="lp-modal-title mt-1"></h2>
+        </div>
+        <button type="button" class="lp-modal-close" onclick="cerrarModalPropiedad()" aria-label="Cerrar">×</button>
+      </div>
+
+      <div id="propModalGaleria" class="lp-prop-galeria mb-3"></div>
+
+      <div class="lp-prop-precio-box mb-3">
+        <span id="propModalPrecio" class="lp-prop-precio"></span>
+        <span id="propModalExpensas" class="lp-prop-expensas"></span>
+      </div>
+
+      <div class="lp-prop-datos-grid mb-3">
+        <div class="lp-dato-item">
+          <span>Dirección</span>
+          <strong id="propModalDireccion"></strong>
+        </div>
+        <div class="lp-dato-item">
+          <span>Zona / Barrio</span>
+          <strong id="propModalZona"></strong>
+        </div>
+        <div class="lp-dato-item">
+          <span>Ambientes</span>
+          <strong id="propModalAmbientes"></strong>
+        </div>
+        <div class="lp-dato-item">
+          <span>Dormitorios</span>
+          <strong id="propModalDormitorios"></strong>
+        </div>
+        <div class="lp-dato-item">
+          <span>Superficie</span>
+          <strong id="propModalMetros"></strong>
+        </div>
+        <div class="lp-dato-item">
+          <span>Código de propiedad</span>
+          <strong id="propModalId"></strong>
+        </div>
+      </div>
+
+      <div class="lp-prop-seccion-caract">
+        <span class="lp-prop-subtitulo">Características</span>
+        <div id="propModalCaracteristicas" class="lp-prop-tags"></div>
+      </div>
+    </div>
+  </div>
+
 @endsection
