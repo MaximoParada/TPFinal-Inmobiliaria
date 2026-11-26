@@ -11,13 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [InmobiliariaController::class, 'inicio'])->name('inicio');
 Route::get('/nosotros', [InmobiliariaController::class, 'nosotros'])->name('nosotros');
 Route::get('/tasaciones', [InmobiliariaController::class, 'tasaciones'])->name('tasaciones');
-Route::get('/turnero', function () {
-    if (!auth()->check()) {
-        return redirect()->route('inicio')->with('abrir_login', true);
-    }
-
-    return app(TurnoController::class)->turnero();
-})->name('turnero');
+Route::get('/turnero', [TurnoController::class, 'turnero'])->name('turnero');
 
 // Filtro AJAX del buscador
 Route::get('/propiedades/filtrar', [InmobiliariaController::class, 'filtrar'])->name('propiedades.filtrar');
