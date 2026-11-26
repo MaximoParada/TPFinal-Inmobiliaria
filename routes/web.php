@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\InmobiliariaController;
+use App\Http\Controllers\PropiedadController;
 use Illuminate\Support\Facades\Route;
 
 // Vistas principales
@@ -26,3 +27,13 @@ Route::prefix('chatbot')->group(function () {
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/registro', [AuthController::class, 'register'])->name('registro.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+//rutas del middleware y CRUD
+Route::middleware(['auth', 'CheckRole'])->group(function () {
+    Route::get('/propiedades/crear', [PropiedadController::class, 'create'])->name('propiedades.create');
+    Route::post('/propiedades', [PropiedadController::class, 'store'])->name('propiedades.store');
+    Route::get('/propiedades/{propiedad}/editar', [PropiedadController::class, 'edit'])->name('propiedades.edit');
+    Route::put('/propiedades/{propiedad}', [PropiedadController::class, 'update'])->name('propiedades.update');
+    Route::delete('/propiedades/{propiedad}', [PropiedadController::class, 'destroy'])->name('propiedades.destroy');
+});
