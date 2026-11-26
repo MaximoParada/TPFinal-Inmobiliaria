@@ -51,7 +51,6 @@ class AuthController extends Controller
                 'string',
                 Password::min(6)->mixedCase()->numbers(),
             ],
-            'direccion' => ['required', 'string', 'max:200'],
         ], [
             'name.required' => 'Ingresá tu nombre.',
             'apellido.required' => 'Ingresá tu apellido.',
@@ -63,7 +62,6 @@ class AuthController extends Controller
             'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
             'password.mixed' => 'La contraseña debe incluir al menos una letra mayúscula.',
             'password.numbers' => 'La contraseña debe incluir al menos un número.',
-            'direccion.required' => 'Ingresá tu dirección.',
         ]);
 
         $usuario = User::create([
@@ -72,7 +70,6 @@ class AuthController extends Controller
             'telefono' => trim($datos['telefono']),
             'email' => strtolower(trim($datos['email'])),
             'password' => $datos['password'],
-            'direccion' => trim($datos['direccion']),
             'rol' => 'user',
         ]);
 

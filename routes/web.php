@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\InmobiliariaController;
+use App\Http\Controllers\PropiedadController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TurnoController;
 
@@ -36,4 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/turnero/habilitar', [TurnoController::class, 'habilitar'])->name('turnero.habilitar');
     Route::delete('/turnero/eliminar/{id}', [TurnoController::class, 'eliminar'])->name('turnero.eliminar');
     Route::post('/turnero/reservar', [TurnoController::class, 'reservar'])->name('turnero.reservar');
+//rutas del middleware y CRUD
+Route::middleware(['auth', 'CheckRole'])->group(function () {
+    Route::get('/propiedades/crear', [PropiedadController::class, 'create'])->name('propiedades.create');
+    Route::post('/propiedades', [PropiedadController::class, 'store'])->name('propiedades.store');
+    Route::get('/propiedades/{propiedad}/editar', [PropiedadController::class, 'edit'])->name('propiedades.edit');
+    Route::put('/propiedades/{propiedad}', [PropiedadController::class, 'update'])->name('propiedades.update');
+    Route::delete('/propiedades/{propiedad}', [PropiedadController::class, 'destroy'])->name('propiedades.destroy');
 });
