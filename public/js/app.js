@@ -268,6 +268,19 @@ function cerrarModalPropiedad() {
 document.addEventListener('DOMContentLoaded', () => {
   registrarPropiedadesIniciales();
 
+  // GATE DE LOGIN PARA TURNERO EN VISITANTES
+  document.addEventListener('click', (e) => {
+    const triggerTurnero = e.target.closest('[data-requiere-login="1"], .js-turnero-auth');
+    if (!triggerTurnero) return;
+
+    e.preventDefault();
+    if (typeof abrirModalAuth === 'function') {
+      abrirModalAuth('login');
+    } else {
+      window.location.href = '/turnero';
+    }
+  });
+
   // 0. EVENTOS DE AUTH FLOTANTE Y PERFIL
   limpiarCamposAuth();
 

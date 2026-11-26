@@ -46,7 +46,6 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
             'telefono' => ['required', 'string', 'max:50'],
-            'direccion' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
             'password' => [
                 'required',
@@ -57,7 +56,6 @@ class AuthController extends Controller
             'name.required' => 'Ingresá tu nombre.',
             'apellido.required' => 'Ingresá tu apellido.',
             'telefono.required' => 'Ingresá tu teléfono.',
-            'direccion.required' => 'Ingresá tu dirección.',
             'email.required' => 'Ingresá tu correo electrónico.',
             'email.email' => 'Ingresá un correo válido.',
             'email.unique' => 'Ese correo ya está registrado.',
@@ -71,7 +69,6 @@ class AuthController extends Controller
             'name' => trim($datos['name']),
             'apellido' => trim($datos['apellido']),
             'telefono' => trim($datos['telefono']),
-            'direccion' => trim($datos['direccion']),
             'email' => strtolower(trim($datos['email'])),
             'password' => $datos['password'],
             'rol' => 'user',
@@ -98,7 +95,6 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
             'telefono' => ['required', 'string', 'max:50'],
-            'direccion' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
@@ -109,7 +105,6 @@ class AuthController extends Controller
             'name.required' => 'Ingresá tu nombre.',
             'apellido.required' => 'Ingresá tu apellido.',
             'telefono.required' => 'Ingresá tu teléfono.',
-            'direccion.required' => 'Ingresá tu dirección.',
             'email.required' => 'Ingresá tu correo electrónico.',
             'email.email' => 'Ingresá un correo válido.',
             'email.unique' => 'Ese correo ya está en uso por otra cuenta.',
@@ -119,7 +114,6 @@ class AuthController extends Controller
             'name' => trim($datos['name']),
             'apellido' => trim($datos['apellido']),
             'telefono' => trim($datos['telefono']),
-            'direccion' => trim($datos['direccion']),
             'email' => strtolower(trim($datos['email'])),
         ]);
 
@@ -132,7 +126,6 @@ class AuthController extends Controller
                     'apellido' => $usuario->apellido,
                     'email' => $usuario->email,
                     'telefono' => $usuario->telefono,
-                    'direccion' => $usuario->direccion,
                 ],
             ]);
         }

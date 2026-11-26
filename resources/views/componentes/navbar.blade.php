@@ -4,30 +4,37 @@
 
         <ul class="lp-navbar-links">
             <li>
-                <a href="{{ url('/') }}" class="lp-nav-link {{ request()->is('/') ? 'active' : '' }}">Inicio</a>
+                <a href="{{ route('inicio') }}" class="lp-nav-link {{ request()->routeIs('inicio') ? 'active' : '' }}">Inicio</a>
             </li>
 
             @guest
                 <li>
-                    <a href="{{ url('/nosotros') }}" class="lp-nav-link {{ request()->is('nosotros') ? 'active' : '' }}">Nosotros</a>
+                    <a href="{{ route('nosotros') }}" class="lp-nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
                 </li>
                 <li>
-                    <a href="{{ url('/#tasaciones') }}" class="lp-nav-link">Tasaciones</a>
+                    <a href="{{ route('tasaciones') }}" class="lp-nav-link {{ request()->routeIs('tasaciones') ? 'active' : '' }}">Tasaciones</a>
+                </li>
+                <li>
+                    <a
+                        href="{{ route('turnero') }}"
+                        class="lp-nav-link js-turnero-auth {{ request()->routeIs('turnero') ? 'active' : '' }}"
+                        data-requiere-login="1"
+                    >Turnero</a>
                 </li>
             @else
                 @if (auth()->user()->rol === 'admin')
                     <li>
-                        <a href="{{ route('turnero') }}" class="lp-nav-link {{ request()->is('turnero*') ? 'active' : '' }}">Calendario</a>
+                        <a href="{{ route('turnero') }}" class="lp-nav-link {{ request()->routeIs('turnero') ? 'active' : '' }}">Turnero</a>
                     </li>
                 @else
                     <li>
-                        <a href="{{ url('/nosotros') }}" class="lp-nav-link {{ request()->is('nosotros') ? 'active' : '' }}">Nosotros</a>
+                        <a href="{{ route('nosotros') }}" class="lp-nav-link {{ request()->routeIs('nosotros') ? 'active' : '' }}">Nosotros</a>
                     </li>
                     <li>
-                        <a href="{{ url('/#tasaciones') }}" class="lp-nav-link">Tasaciones</a>
+                        <a href="{{ route('tasaciones') }}" class="lp-nav-link {{ request()->routeIs('tasaciones') ? 'active' : '' }}">Tasaciones</a>
                     </li>
                     <li>
-                        <a href="{{ route('turnero') }}" class="lp-nav-link {{ request()->is('turnero*') ? 'active' : '' }}">Calendario</a>
+                        <a href="{{ route('turnero') }}" class="lp-nav-link {{ request()->routeIs('turnero') ? 'active' : '' }}">Turnero</a>
                     </li>
                 @endif
             @endauth
@@ -45,8 +52,10 @@
             @endauth
 
             <button type="button" class="btn-bot-navbar" onclick="toggleChatbot()" aria-label="Abrir asistente virtual">
-                <img src="{{ asset('img/lonco-boti.svg') }}" alt="Asistente virtual" width="28" height="28">
-                <span>Asistente virtual</span>
+                <span class="btn-bot-navbar-circulo">
+                    <img src="{{ asset('img/lonco-boti.svg') }}" alt="Asistente virtual" width="36" height="36">
+                </span>
+                <span class="btn-bot-navbar-texto">Asistente virtual</span>
             </button>
         </div>
     </nav>
