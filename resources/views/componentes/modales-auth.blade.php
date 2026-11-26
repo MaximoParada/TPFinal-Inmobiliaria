@@ -55,11 +55,6 @@
             </div>
 
             <div class="lp-campo">
-                <label for="reg_direccion">Dirección</label>
-                <input type="text" id="reg_direccion" name="direccion" required placeholder="Calle y número">
-            </div>
-
-            <div class="lp-campo">
                 <label for="reg_password">Contraseña</label>
                 <input type="password" id="reg_password" name="password" required placeholder="Creá una contraseña">
                 <ul class="lp-pass-reglas" id="reglasPassword">
@@ -106,10 +101,6 @@
             <div class="lp-dato-item">
                 <span>Teléfono</span>
                 <strong>{{ auth()->user()->telefono ?: 'No especificado' }}</strong>
-            </div>
-            <div class="lp-dato-item">
-                <span>Dirección</span>
-                <strong>{{ auth()->user()->direccion ?: 'No especificada' }}</strong>
             </div>
         </div>
 
