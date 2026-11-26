@@ -6,6 +6,9 @@
             <li>
                 <a href="{{ url('/') }}" class="lp-nav-link {{ request()->is('/') ? 'active' : '' }}">Inicio</a>
             </li>
+            <li>
+                <a href="{{ url('/turnero') }}" class="{{ request()->is('turnero') ? 'active' : '' }}">Turnero</a>
+            </li>
 
             @guest
                 <li>

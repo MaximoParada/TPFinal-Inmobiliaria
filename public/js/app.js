@@ -951,7 +951,7 @@ async function procesarTextoEscrito(texto) {
       loading: true,
       content: 'No entendí tu consulta o no tengo una respuesta para eso. ' +
                'Podés comunicarte con nosotros al <strong>+54 299 555-0148</strong> ' +
-               'o por mail a <strong>hola@nexoprop.com.ar</strong>.'
+               'o por mail a <strong>contacto@loncoprop.com.ar</strong>.'
     });
     mostrarMenu('¿Te puedo ayudar en algo más?');
     return;
@@ -1042,3 +1042,250 @@ function calcularValorM2Referencia(zona, tipo, operacion) {
 
   return baseM2;
 }
+
+// TURNERO (fullcalendar, turnocontroller y ajax)
+document.addEventListener('DOMContentLoaded', function () {
+    const appTurnero = document.getElementById('turneroApp');
+    // Si no estamos en la vista del turnero, cortamos acá para no ejecutar código innecesario
+    if (!appTurnero) return;
+
+    // Leemos los datos que dejamos en los atributos data-* del HTML
+    const esAdmin      = appTurnero.dataset.esAdmin === '1';
+    const csrfToken    = appTurnero.dataset.csrf;
+    const urlHabilitar = appTurnero.dataset.urlHabilitar;
+    const urlReservar  = appTurnero.dataset.urlReservar;
+
+    const selectPropiedad      = document.getElementById('selectPropiedad');
+    const avisoSeleccion       = document.getElementById('avisoSeleccion');
+    const contenedorCalendario = document.getElementById('contenedorCalendario');
+    const calendarEl           = document.getElementById('calendar');
+
+    let eventoSeleccionadoEl     = null;
+    let turnoAdminSeleccionadoId = null;
+
+    // 1. Se inicializa la librería FullCalendar llamando a new FullCalendar.Calendar()
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth', // Vista mensual por defecto
+        locale: 'es',                // Idioma español
+        height: 'auto',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek'
+        },
+        buttonText: { today: 'Hoy', month: 'Mes', list: 'Lista' },
+
+        // La librería llama a esta función cada vez que necesita cargar o refrescar los turnos
+        events: function (info, successCallback, failureCallback) {
+            const propId = selectPropiedad.value;
+            if (!propId) return successCallback([]);
+
+            // Pedimos los turnos en JSON a nuestro TurnoController
+            fetch(`/turnero/eventos/${propId}`)
+                .then(res => res.json())
+                .then(data => successCallback(data))
+                .catch(err => failureCallback(err));
+        },
+
+        // Asignamos clase CSS según si el turno está libre (negro) o reservado (rojo)
+        eventClassNames: function (arg) {
+            return arg.event.extendedProps.estado === 'confirmada'
+                ? ['fc-event-ocupado']
+                : ['fc-event-libre'];
+        },
+
+        // Callback de FullCalendar cuando el usuario toca un día vacío en la grilla
+        dateClick: function (info) {
+            if (!esAdmin) return;
+            const inputFecha = document.getElementById('adminFecha');
+            if (inputFecha && info.dateStr >= inputFecha.min) {
+                inputFecha.value = info.dateStr;
+            }
+        },
+
+        // Callback de FullCalendar cuando el usuario toca un turno cargado en el calendario
+        eventClick: function (info) {
+            const props = info.event.extendedProps;
+
+            // --- Si es ADMIN: mostramos detalle del turno (libre o reservado) ---
+            if (esAdmin) {
+                const box    = document.getElementById('detalleTurnoAdmin');
+                const txt    = document.getElementById('textoDetalleAdmin');
+                const btnDel = document.getElementById('btnEliminarTurno');
+
+                box.classList.remove('d-none');
+                if (props.estado === 'disponible') {
+                    turnoAdminSeleccionadoId = props.turno_id;
+                    txt.innerHTML = `<strong>${props.fecha_linda}</strong><br>Estado: <span class="text-success fw-semibold">Disponible</span>`;
+                    btnDel.classList.remove('d-none');
+                } else {
+                    turnoAdminSeleccionadoId = null;
+                    txt.innerHTML = `<strong>${props.fecha_linda}</strong><br>Reservado por: <strong>${props.cliente}</strong> (${props.telefono})`;
+                    btnDel.classList.add('d-none');
+                }
+                return;
+            }
+
+            // --- Si es USUARIO: marcamos en verde el horario elegido y habilitamos el botón ---
+            if (eventoSeleccionadoEl) {
+                eventoSeleccionadoEl.classList.remove('fc-event-seleccionado');
+            }
+            info.el.classList.add('fc-event-seleccionado');
+            eventoSeleccionadoEl = info.el;
+
+            document.getElementById('inputTurnoId').value = props.turno_id;
+            document.getElementById('resumenFecha').value = props.fecha_linda;
+            document.getElementById('btnConfirmarReserva').disabled = false;
+            document.getElementById('alertaUsuario').classList.add('d-none');
+        }
+    });
+
+    // ponemos el calendario en pantalla
+    calendar.render();
+
+    // 2. Cuando cambia la propiedad seleccionada en el <select>
+    selectPropiedad.addEventListener('change', function () {
+        const propId = this.value;
+
+        if (!propId) {
+            avisoSeleccion.classList.remove('d-none');
+            contenedorCalendario.classList.add('d-none');
+            if (esAdmin) {
+                document.getElementById('btnHabilitar').disabled = true;
+                document.getElementById('detalleTurnoAdmin').classList.add('d-none');
+            } else {
+                document.getElementById('resumenPropiedad').value = '';
+                document.getElementById('resumenFecha').value = '';
+                document.getElementById('inputTurnoId').value = '';
+                document.getElementById('btnConfirmarReserva').disabled = true;
+            }
+            return;
+        }
+
+        avisoSeleccion.classList.add('d-none');
+        contenedorCalendario.classList.remove('d-none');
+
+        if (esAdmin) {
+            document.getElementById('btnHabilitar').disabled = false;
+            document.getElementById('detalleTurnoAdmin').classList.add('d-none');
+        } else {
+            document.getElementById('resumenPropiedad').value = this.options[this.selectedIndex].text.trim();
+            document.getElementById('resumenFecha').value = '';
+            document.getElementById('inputTurnoId').value = '';
+            document.getElementById('btnConfirmarReserva').disabled = true;
+        }
+
+        // Ajustamos el tamaño de FullCalendar y pedimos los eventos de la propiedad elegida
+        calendar.updateSize();
+        calendar.refetchEvents();
+    });
+
+    // 3. LÓGICA DEL ADMIN: Habilitar horarios y eliminar horarios libres
+    if (esAdmin) {
+        const formAdmin   = document.getElementById('formAdminHabilitar');
+        const alertaAdmin = document.getElementById('alertaAdmin');
+
+        formAdmin.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Juntamos los chips marcados + el horario puntual opcional
+            const horas = Array.from(document.querySelectorAll('.check-hora:checked')).map(c => c.value);
+            const extra = document.getElementById('horaExtra').value;
+            if (extra && !horas.includes(extra)) horas.push(extra);
+
+            if (horas.length === 0) {
+                alertaAdmin.classList.remove('d-none', 'alert-success');
+                alertaAdmin.classList.add('alert-danger');
+                alertaAdmin.textContent = 'Seleccioná al menos un horario.';
+                return;
+            }
+
+            // Enviamos los datos al controlador por POST
+            fetch(urlHabilitar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    propiedad_id: selectPropiedad.value,
+                    fecha: document.getElementById('adminFecha').value,
+                    horas: horas
+                })
+            })
+            .then(async res => {
+                const data = await res.json();
+                alertaAdmin.classList.remove('d-none', 'alert-success', 'alert-danger');
+                alertaAdmin.classList.add(res.ok && data.ok ? 'alert-success' : 'alert-danger');
+                alertaAdmin.textContent = data.mensaje || 'Error al habilitar horarios.';
+
+                if (res.ok && data.ok) {
+                    document.querySelectorAll('.check-hora').forEach(c => c.checked = false);
+                    document.getElementById('horaExtra').value = '';
+                    // Refrescamos FullCalendar para que aparezcan los horarios recién creados
+                    calendar.refetchEvents();
+                }
+            });
+        });
+
+        // Botón para eliminar un horario libre que todavía nadie reservó
+        document.getElementById('btnEliminarTurno').addEventListener('click', function () {
+            if (!turnoAdminSeleccionadoId) return;
+
+            fetch(`/turnero/eliminar/${turnoAdminSeleccionadoId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('detalleTurnoAdmin').classList.add('d-none');
+                alertaAdmin.classList.remove('d-none', 'alert-danger');
+                alertaAdmin.classList.add('alert-success');
+                alertaAdmin.textContent = data.mensaje;
+                calendar.refetchEvents();
+            });
+        });
+    }
+
+    // 4. LÓGICA DEL USUARIO: Confirmar la reserva del turno seleccionado
+    if (!esAdmin) {
+        const formUsuario   = document.getElementById('formUsuarioReservar');
+        const alertaUsuario = document.getElementById('alertaUsuario');
+        const btnConfirmar  = document.getElementById('btnConfirmarReserva');
+
+        formUsuario.addEventListener('submit', function (e) {
+            e.preventDefault();
+            btnConfirmar.disabled = true;
+
+            // Enviamos únicamente el ID del turno elegido; el servidor toma los datos de Auth::user()
+            fetch(urlReservar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    turno_id: document.getElementById('inputTurnoId').value
+                })
+            })
+            .then(async res => {
+                const data = await res.json();
+                alertaUsuario.classList.remove('d-none', 'alert-success', 'alert-danger');
+                alertaUsuario.classList.add(res.ok && data.ok ? 'alert-success' : 'alert-danger');
+                alertaUsuario.textContent = data.mensaje || 'No se pudo confirmar.';
+
+                // Limpiamos la selección y recargamos el calendario (el turno reservado ya no aparece)
+                document.getElementById('inputTurnoId').value = '';
+                document.getElementById('resumenFecha').value = '';
+                eventoSeleccionadoEl = null;
+                calendar.refetchEvents();
+            });
+        });
+    }
+});
+
