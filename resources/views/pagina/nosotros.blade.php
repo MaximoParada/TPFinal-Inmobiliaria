@@ -3,11 +3,11 @@
 @section('title', 'Nosotros — LoncoProp Inmobiliaria')
 
 @section('contenido')
-<div class="container py-5" style="max-width: 1100px;">
+<div class="container-fluid py-5 nosotros-wrapper">
 
-    {{-- 1. TÍTULO Y ENFOQUE --}}
+    <!-- Título -->
     <section class="mb-5">
-        <span class="text-uppercase fw-semibold text-muted small d-block mb-3" style="letter-spacing: 0.08em;">
+        <span class="text-uppercase fw-semibold small d-block mb-3 nosotros-eyebrow">
             Sobre LoncoProp
         </span>
 
@@ -15,40 +15,40 @@
             Redefinimos la forma de encontrar tu próximo lugar.
         </h1>
 
-        <p class="nosotros-lead text-muted mb-0">
+        <p class="nosotros-lead mb-0">
             Combinamos el conocimiento local del mercado inmobiliario con herramientas digitales ágiles para que alquilar, comprar o tasar sea un proceso transparente y sin demoras.
         </p>
     </section>
 
-    {{-- 2. IMAGEN PANORÁMICA --}}
+    <!-- Banner -->
     <div class="nosotros-banner mb-5">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80" 
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1800&q=80" 
              alt="Oficina moderna minimalista">
     </div>
 
-    {{-- 3. DATOS CLAVE (3 COLUMNAS) --}}
-    <section class="row g-4 py-4 border-top border-bottom my-5">
+    <!-- Datos clave -->
+    <section class="row g-4 py-4 my-5 nosotros-stats">
         <div class="col-12 col-md-4">
             <div class="stat-number fw-bolder">+450</div>
-            <p class="text-muted small mb-0">Propiedades gestionadas en toda la región.</p>
+            <p class="small mb-0 nosotros-stat-desc">Propiedades gestionadas en toda la región.</p>
         </div>
 
         <div class="col-12 col-md-4">
             <div class="stat-number fw-bolder">24/7</div>
-            <p class="text-muted small mb-0">Atención inmediata mediante nuestro asistente virtual.</p>
+            <p class="small mb-0 nosotros-stat-desc">Atención inmediata mediante nuestro asistente virtual.</p>
         </div>
 
         <div class="col-12 col-md-4">
             <div class="stat-number fw-bolder">98%</div>
-            <p class="text-muted small mb-0">De clientes que concretan su búsqueda en menos de 15 días.</p>
+            <p class="small mb-0 nosotros-stat-desc">De clientes que concretan su búsqueda en menos de 15 días.</p>
         </div>
     </section>
 
-    {{-- 4. CÓMO TRABAJAMOS (PILARES) --}}
+    <!-- Cómo trabajamos -->
     <section class="row g-5 align-items-start my-5">
         <div class="col-12 col-lg-4">
-            <h2 class="h4 fw-bold mb-3" style="letter-spacing: -0.02em;">Cómo trabajamos</h2>
-            <p class="text-muted small mb-0" style="line-height: 1.6;">
+            <h2 class="h4 fw-bold mb-3 nosotros-subtitulo">Cómo trabajamos</h2>
+            <p class="small mb-0 nosotros-texto-suave" style="line-height: 1.6;">
                 Eliminamos la burocracia innecesaria para conectar personas con espacios reales.
             </p>
         </div>
@@ -58,7 +58,7 @@
                 <div class="col-12 col-md-6">
                     <article class="pillar-card h-100">
                         <h3 class="h6 fw-bold mb-2">Búsqueda Inteligente</h3>
-                        <p class="text-muted small mb-0">
+                        <p class="small mb-0">
                             Nuestro chatbot filtra opciones según tu presupuesto, zona y cantidad de ambientes en segundos.
                         </p>
                     </article>
@@ -67,7 +67,7 @@
                 <div class="col-12 col-md-6">
                     <article class="pillar-card h-100">
                         <h3 class="h6 fw-bold mb-2">Tasaciones Reales</h3>
-                        <p class="text-muted small mb-0">
+                        <p class="small mb-0">
                             Evaluamos cada propiedad con datos actualizados del mercado para asegurar valores justos y competitivos.
                         </p>
                     </article>
@@ -76,7 +76,7 @@
                 <div class="col-12 col-md-6">
                     <article class="pillar-card h-100">
                         <h3 class="h6 fw-bold mb-2">Visitas Coordinadas</h3>
-                        <p class="text-muted small mb-0">
+                        <p class="small mb-0">
                             Agendá recorridos presenciales o virtuales directamente desde el chat sin esperas telefónicas.
                         </p>
                     </article>
@@ -85,7 +85,7 @@
                 <div class="col-12 col-md-6">
                     <article class="pillar-card h-100">
                         <h3 class="h6 fw-bold mb-2">Acompañamiento Legal</h3>
-                        <p class="text-muted small mb-0">
+                        <p class="small mb-0">
                             Te asesoramos en contratos, garantías y documentación hasta la entrega de llaves.
                         </p>
                     </article>
@@ -94,7 +94,7 @@
         </div>
     </section>
 
-    {{-- 5. LLAMADO A LA ACCIÓN DIRECTO AL BOT --}}
+    <!-- Llamado a la acción -->
     <section class="nosotros-cta text-center text-white mt-5">
         <h2 class="fw-bold mb-3">¿Tenés dudas sobre cómo empezar?</h2>
         <p class="mx-auto mb-4">

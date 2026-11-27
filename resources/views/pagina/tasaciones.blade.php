@@ -3,12 +3,12 @@
 @section('title', 'Tasaciones — LoncoProp Inmobiliaria')
 
 @section('contenido')
-<div class="container py-5" style="max-width: 1100px;">
-    <div class="row g-5 align-items-start">
+<div class="container-fluid py-5 tasaciones-wrapper">
+    <div class="row g-5 align-items-start justify-content-between">
 
-        {{-- COLUMNA IZQUIERDA: Información y pasos --}}
-        <div class="col-12 col-lg-6">
-            <span class="text-uppercase fw-semibold text-muted small d-block mb-2" style="letter-spacing: 0.08em;">
+        <!-- Información y pasos -->
+        <div class="col-12 col-lg-5">
+            <span class="text-uppercase fw-semibold small d-block mb-2 tasaciones-eyebrow">
                 Valuación Profesional
             </span>
 
@@ -16,47 +16,45 @@
                 Conocé el valor real de tu propiedad.
             </h1>
 
-            <p class="text-muted fs-6 mb-5">
+            <p class="fs-6 mb-5 tasaciones-lead">
                 Analizamos la ubicación, metros cuadrados y demanda actual de la zona para entregarte una tasación precisa en menos de 24 horas.
             </p>
 
-            {{-- Lista de 3 pasos --}}
             <div class="d-flex align-items-start gap-3 mb-4">
                 <span class="step-circle">1</span>
                 <div>
-                    <h3 class="h6 fw-bold mb-1">Compartí los datos básicos</h3>
-                    <p class="text-muted small mb-0">Indicá tipo de inmueble, barrio y superficie aproximada.</p>
+                    <h3 class="h6 fw-bold mb-1 tasaciones-step-title">Compartí los datos básicos</h3>
+                    <p class="small mb-0 tasaciones-step-text">Indicá tipo de inmueble, barrio y superficie aproximada.</p>
                 </div>
             </div>
 
             <div class="d-flex align-items-start gap-3 mb-4">
                 <span class="step-circle">2</span>
                 <div>
-                    <h3 class="h6 fw-bold mb-1">Análisis comparativo</h3>
-                    <p class="text-muted small mb-0">Comparamos valores reales de cierre en tu misma zona.</p>
+                    <h3 class="h6 fw-bold mb-1 tasaciones-step-title">Análisis comparativo</h3>
+                    <p class="small mb-0 tasaciones-step-text">Comparamos valores reales de cierre en tu misma zona.</p>
                 </div>
             </div>
 
             <div class="d-flex align-items-start gap-3 mb-5">
                 <span class="step-circle">3</span>
                 <div>
-                    <h3 class="h6 fw-bold mb-1">Informe sin compromiso</h3>
-                    <p class="text-muted small mb-0">Recibís el rango estimado para vender o alquilar rápido.</p>
+                    <h3 class="h6 fw-bold mb-1 tasaciones-step-title">Informe sin compromiso</h3>
+                    <p class="small mb-0 tasaciones-step-text">Recibís el rango estimado para vender o alquilar rápido.</p>
                 </div>
             </div>
 
-            {{-- Aviso al chatbot --}}
-            <div class="bg-light rounded-4 p-4 small" role="button" onclick="toggleChatbot()">
+            <div class="tasaciones-bot-box p-4 small" role="button" onclick="toggleChatbot()">
                 <strong class="d-block mb-1">¿Preferís hacerlo más rápido?</strong>
-                Abrí nuestro asistente virtual abajo a la derecha y seleccioná <em>"Quiero tasar mi propiedad"</em> para guiarte paso a paso.
+                Abrí nuestro asistente virtual en la esquina superior derecha y seleccioná <em>"Quiero tasar mi propiedad"</em> para guiarte paso a paso.
             </div>
         </div>
 
-        {{-- COLUMNA DERECHA: Formulario --}}
+        <!-- Formulario -->
         <div class="col-12 col-lg-6">
-            <div class="form-card bg-white border rounded-4 p-4 p-md-5">
-                <h2 class="h4 fw-bold mb-1">Solicitar tasación</h2>
-                <p class="text-muted small mb-4">Completá los datos y un asesor se comunicará con vos.</p>
+            <div class="form-card bg-white p-4 p-md-5">
+                <h2 class="h4 fw-bold mb-1 tasaciones-form-title">Solicitar tasación</h2>
+                <p class="small mb-4 tasaciones-step-text">Completá los datos y un asesor se comunicará con vos.</p>
 
                 <form id="tasacionForm">
                     @csrf
@@ -108,7 +106,7 @@
                         <input type="tel" id="contacto" name="contacto" class="form-control" placeholder="+54 299 ..." required>
                     </div>
 
-                    <button type="submit" class="btn btn-dark w-100 rounded-pill py-3 fw-semibold">
+                    <button type="submit" class="btn btn-tasacion-submit w-100 rounded-pill py-3 fw-semibold">
                         Solicitar valuación gratuita
                     </button>
 

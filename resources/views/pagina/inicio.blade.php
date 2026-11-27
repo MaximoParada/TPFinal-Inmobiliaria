@@ -4,16 +4,17 @@
 
 @section('contenido')
 
-  <!-- 1. SECCIÓN HERO CENTRADA -->
-  <header class="hero d-flex align-items-center justify-content-center text-center">
-    <div class="container hero-content">
-      <h1 class="hero-title">LoncoProp</h1>
-      <p class="hero-subtitle mx-auto">
-        Comprar o alquilar tu próxima propiedad, de forma simple y segura.
-      </p>
+  <header class="hero">
+    <div class="container-fluid hero-content">
+      <div class="hero-text-block">
+        <h1 class="hero-title">LoncoProp</h1>
+        <p class="hero-subtitle">
+          Comprar o alquilar tu próxima propiedad, de forma simple y segura.
+        </p>
+      </div>
 
-      <!-- Barra de filtros rápidos -->
-      <form id="form-buscador" class="search-bar mx-auto" method="GET" action="{{ route('propiedades.filtrar') }}">
+      <!-- Buscador -->
+      <form id="form-buscador" class="search-bar" method="GET" action="{{ route('propiedades.filtrar') }}">
         <div class="search-field">
           <select name="operacion" aria-label="Operación">
             <option value="">Operación</option>
@@ -50,17 +51,34 @@
     </div>
   </header>
 
-  <!-- 2. SECCIÓN PROPUESTA Y DESTACADOS -->
-  <section class="container py-5 showcase" id="propiedades" style="max-width: 1140px;">
+  <!-- Propiedades y turnero -->
+  <section class="container-fluid py-5 showcase" id="propiedades">
     
-    <div class="showcase-header d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-4 mb-5">
-      <h2 class="showcase-statement mb-0">
-        Nuestros asesores —y nuestro asistente virtual 24/7— te acompañan en cada paso para garantizar la mejor experiencia inmobiliaria de la ciudad.
-      </h2>
+    <div class="showcase-header row align-items-center justify-content-between g-4 mb-5 pb-5 border-bottom">
+      <div class="col-12 col-lg-6">
+        <h2 class="showcase-statement mb-0">
+          Nuestros asesores y nuestro asistente virtual 24/7 (en la esquina superior derecha) te acompañan en cada paso para encontrar tu próxima propiedad.
+        </h2>
+      </div>
 
-      <button type="button" class="btn-bot-inicio" onclick="toggleChatbot()">
-        Nuestro asistente virtual
-      </button>
+      <div class="col-12 col-lg-5 border-start-lg ps-lg-5 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3">
+        <div>
+          <h3 class="showcase-turnero-title mb-1">¿Querés visitar una propiedad?</h3>
+          <p class="text-muted mb-0" style="font-size: 0.95rem;">
+            Iniciá sesión y elegí tu horario en el turnero.
+          </p>
+        </div>
+        <a href="{{ route('turnero') }}" class="btn-turnero-grande text-nowrap">
+          Turnero
+        </a>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h2 class="showcase-section-title mb-1">Conocé nuestras propiedades disponibles</h2>
+      <p class="text-muted mb-0">
+        Tocá cualquier tarjeta para ver el detalle de la propiedad.
+      </p>
     </div>
 
     @if(auth()->check() && auth()->user()->rol === 'admin')
@@ -72,10 +90,16 @@
     <div class="cards-grid" id="contenedor-tarjetas">
       @forelse (($propiedades ?? collect())->unique('id') as $propiedad)
         <article class="property-card" data-id="{{ $propiedad->id }}">
-          <!-- Carrusel de imágenes -->
+          <!-- Carrusel -->
           <div class="card-img-wrapper card-carousel" data-index="0">
             <span class="badge-operacion">{{ ucfirst($propiedad->operacion) }}</span>
-            <span class="badge-id">ID #{{ $propiedad->id }}</span>
+            <button
+              type="button"
+              class="badge-id border-0"
+              title="Copiar ID de propiedad"
+            >
+              ID #{{ $propiedad->id }}    
+            </button>
 
             <div class="carousel-track">
               @foreach ($propiedad->imagenes_lista ?? ['img/sin-imagen.jpg'] as $idx => $rutaImg)
@@ -104,7 +128,7 @@
             @endif
           </div>
 
-          <!-- Atributos de la propiedad -->
+          <!-- Datos de la propiedad -->
           <div class="card-body">
             <div class="card-price-row">
               <span class="card-price">${{ number_format((float) $propiedad->precio, 0, ',', '.') }}</span>
@@ -158,7 +182,6 @@
       @endforelse
     </div>
 
-    <!-- Botón para volver a ver todas las propiedades cuando hay resultados filtrados -->
     <div id="accion-reset-filtros" class="text-center mt-4 d-none">
       <button type="button" id="btn-ver-todas" class="btn-search">
         Ver todas las propiedades
@@ -166,12 +189,11 @@
     </div>
   </section>
 
-  <!-- JSON INICIAL DE PROPIEDADES CON CARACTERÍSTICAS -->
   <script type="application/json" id="datos-propiedades-iniciales">
     @json(($propiedades ?? collect())->unique('id')->values())
   </script>
 
-  <!-- FLOTANTE DETALLE COMPLETO DE PROPIEDAD -->
+  <!-- Modal detalle -->
   <div id="modalPropiedad" class="lp-modal-backdrop d-none" aria-hidden="true">
     <div class="lp-modal-card lp-modal-propiedad" role="dialog" aria-modal="true" aria-labelledby="propModalTitulo">
       <div class="lp-modal-header">
@@ -212,7 +234,17 @@
         </div>
         <div class="lp-dato-item">
           <span>Código de propiedad</span>
-          <strong id="propModalId"></strong>
+          <div class="d-flex align-items-center justify-content-between gap-2 mt-1">
+            <strong id="propModalId"></strong>
+            <button
+              type="button"
+              id="btnCopiarIdModal"
+              class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1"
+              style="font-size: 0.78rem;"
+            >
+              Copiar ID
+            </button>
+          </div>
         </div>
       </div>
 
