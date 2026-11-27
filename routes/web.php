@@ -39,15 +39,10 @@ Route::middleware('auth')->group(function () {
 });
 
 // rutas del middleware y CRUD
-Route::middleware(['auth', 'CheckRole'])->group(function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/propiedades/crear', [PropiedadController::class, 'create'])->name('propiedades.create');
     Route::post('/propiedades', [PropiedadController::class, 'store'])->name('propiedades.store');
     Route::get('/propiedades/{propiedad}/editar', [PropiedadController::class, 'edit'])->name('propiedades.edit');
     Route::put('/propiedades/{propiedad}', [PropiedadController::class, 'update'])->name('propiedades.update');
     Route::delete('/propiedades/{propiedad}', [PropiedadController::class, 'destroy'])->name('propiedades.destroy');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::put('/perfil', [AuthController::class, 'updateProfile'])->name('perfil.update');
-    Route::delete('/perfil', [AuthController::class, 'destroyAccount'])->name('perfil.destroy');
 });
