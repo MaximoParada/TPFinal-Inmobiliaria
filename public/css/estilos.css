@@ -1926,13 +1926,6 @@ body {
   border: 1px solid #e4dfd9;
 }
 
-.fc .fc-toolbar-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  text-transform: capitalize;
-  color: #231f1d;
-}
-
 .fc .fc-col-header-cell-cushion,
 .fc .fc-daygrid-day-number {
   color: #231f1d !important;
@@ -2034,7 +2027,6 @@ body {
 #btnConfirmarReserva:disabled {
   background-color: #b8aea4;
   color: #ffffff;
-<<<<<<< HEAD
   border-color: #141414;
 }
 
@@ -2297,6 +2289,4 @@ body {
     .lp-prop-form-grid {
         grid-template-columns: 1fr;
     }
-=======
->>>>>>> 76316bbdba883b4dd892ea0765efe6b128e8249f
 }
