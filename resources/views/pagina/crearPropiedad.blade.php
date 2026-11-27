@@ -77,7 +77,7 @@
         </div>
 
         <fieldset class="lp-prop-fieldset">
-          <legend>Características (Relación N:M)</legend>
+          <legend>Características</legend>
           <div class="lp-prop-checks">
             @foreach ($caracteristicas as $carac)
               <label class="lp-prop-check-item">
