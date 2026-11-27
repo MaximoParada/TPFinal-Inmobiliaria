@@ -46,7 +46,7 @@
 
             <div class="tasaciones-bot-box p-4 small" role="button" onclick="toggleChatbot()">
                 <strong class="d-block mb-1">¿Preferís hacerlo más rápido?</strong>
-                Abrí nuestro asistente virtual en la esquina superior derecha y seleccioná <em>"Quiero tasar mi propiedad"</em> para guiarte paso a paso.
+                Abrí nuestro asistente virtual en la esquina superior derecha y scambeleccioná <em>"Quiero tasar mi propiedad"</em> para guiarte paso a paso.
             </div>
         </div>
 
