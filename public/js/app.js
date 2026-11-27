@@ -1,3 +1,119 @@
+//-------------------------------------DETALLE DE PROPIEDAD------------------------------------//
+const propiedadesPorId = new Map();
+
+function copiarIdPropiedad(event, id, botonEl) {
+  if (event) event.stopPropagation(); // Evita abrir el modal si se toca desde la tarjeta
+  const textoId = String(id);
+
+  navigator.clipboard.writeText(textoId).then(() => {
+    if (!botonEl) return;
+    const textoOriginal = botonEl.textContent;
+    botonEl.textContent = '¡Copiado!';
+    setTimeout(() => {
+      botonEl.textContent = textoOriginal;
+    }, 1500);
+  });
+}
+
+function registrarPropiedadesIniciales() {
+  const scriptEl = document.getElementById('datos-propiedades-iniciales');
+  if (!scriptEl) return;
+
+  try {
+    const lista = JSON.parse(scriptEl.textContent || '[]');
+    if (Array.isArray(lista)) {
+      propiedadesPorId.clear();
+      lista.forEach((prop) => {
+        if (prop && prop.id !== undefined) {
+          propiedadesPorId.set(String(prop.id), prop);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('No se pudieron leer las propiedades iniciales:', err);
+  }
+}
+
+function normalizarImagenesPropiedad(prop) {
+  let imagenes = prop.imagenes_lista || prop.imagenes || ['img/sin-imagen.jpg'];
+  if (typeof imagenes === 'string') {
+    try { imagenes = JSON.parse(imagenes); } catch { imagenes = ['img/sin-imagen.jpg']; }
+  }
+  if (!Array.isArray(imagenes) || !imagenes.length) {
+    imagenes = ['img/sin-imagen.jpg'];
+  }
+  return imagenes.map((ruta) =>
+    /^https?:\/\//i.test(ruta) ? ruta : `/${String(ruta).replace(/^\/+/, '')}`
+  );
+}
+
+function abrirModalPropiedad(prop) {
+  const modal = document.getElementById('modalPropiedad');
+  if (!modal || !prop) return;
+
+  const opTexto = prop.operacion ? prop.operacion.charAt(0).toUpperCase() + prop.operacion.slice(1) : 'Propiedad';
+  const dormNum = Number(prop.dormitorios ?? 0);
+  const dormTexto = dormNum === 0
+    ? 'Monoambiente'
+    : `${dormNum} ${dormNum === 1 ? 'dormitorio' : 'dormitorios'}`;
+  const ambNum = Number(prop.ambientes ?? 0);
+  const ambTexto = `${ambNum} ${ambNum === 1 ? 'ambiente' : 'ambientes'}`;
+
+  document.getElementById('propModalBadge').textContent = opTexto;
+  document.getElementById('propModalTitulo').textContent = prop.titulo || '';
+  document.getElementById('propModalPrecio').textContent = `$${Number(prop.precio || 0).toLocaleString('es-AR')}`;
+  document.getElementById('propModalExpensas').textContent =
+    prop.expensas && Number(prop.expensas) > 0
+      ? `+ $${Number(prop.expensas).toLocaleString('es-AR')} expensas`
+      : 'Sin expensas';
+
+  document.getElementById('propModalDireccion').textContent = prop.direccion || 'No especificada';
+  document.getElementById('propModalZona').textContent = prop.zona || 'No especificada';
+  document.getElementById('propModalAmbientes').textContent = ambTexto;
+  document.getElementById('propModalDormitorios').textContent = dormTexto;
+  document.getElementById('propModalMetros').textContent = `${prop.metros_cuadrados ?? 0} m²`;
+  document.getElementById('propModalId').textContent = `#${prop.id}`;
+
+  const btnCopiarModal = document.getElementById('btnCopiarIdModal');
+  if (btnCopiarModal) {
+    btnCopiarModal.textContent = 'Copiar ID';
+    btnCopiarModal.onclick = function (e) {
+      copiarIdPropiedad(e, prop.id, btnCopiarModal);
+    };
+  }
+
+  const galeria = document.getElementById('propModalGaleria');
+  const imgs = normalizarImagenesPropiedad(prop);
+  galeria.innerHTML = imgs
+    .map((src, i) => `<img src="${src}" alt="${prop.titulo || 'Propiedad'} - foto ${i + 1}">`)
+    .join('');
+
+  const contCaract = document.getElementById('propModalCaracteristicas');
+  const listaCaract = Array.isArray(prop.caracteristicas) ? prop.caracteristicas : [];
+  if (listaCaract.length > 0) {
+    contCaract.innerHTML = listaCaract
+      .map((c) => {
+        const nombre = typeof c === 'string'
+          ? c
+          : (c.nombre || c.titulo || c.descripcion || '');
+        return nombre ? `<span class="lp-prop-tag">${nombre}</span>` : '';
+      })
+      .join('');
+  } else {
+    contCaract.innerHTML = '<span class="lp-prop-tag-vacio">Sin características adicionales cargadas.</span>';
+  }
+
+  modal.classList.remove('d-none');
+  modal.style.display = 'flex';
+}
+
+function cerrarModalPropiedad() {
+  const modal = document.getElementById('modalPropiedad');
+  if (modal) {
+    modal.classList.add('d-none');
+    modal.style.display = '';
+  }
+}
 //-------------------------------------AUTH FLOTANTE Y PERFIL------------------------------------//
 function abrirModalAuth(vista = 'login') {
   const modal = document.getElementById('modalAuth');
@@ -168,100 +284,319 @@ function limpiarCamposAuth() {
   ocultarAlertaAuth();
 }
 
-//-------------------------------------DETALLE DE PROPIEDAD------------------------------------//
-const propiedadesPorId = new Map();
+// TURNERO (fullcalendar, turnocontroller y ajax)
+document.addEventListener('DOMContentLoaded', function () {
+    const appTurnero = document.getElementById('turneroApp');
+    if (!appTurnero) return;
 
-function registrarPropiedadesIniciales() {
-  const scriptEl = document.getElementById('datos-propiedades-iniciales');
-  if (!scriptEl) return;
+    const esAdmin      = appTurnero.dataset.esAdmin === '1';
+    const csrfToken    = appTurnero.dataset.csrf;
+    const urlHabilitar = appTurnero.dataset.urlHabilitar;
+    const urlReservar  = appTurnero.dataset.urlReservar;
 
-  try {
-    const lista = JSON.parse(scriptEl.textContent || '[]');
-    if (Array.isArray(lista)) {
-      propiedadesPorId.clear();
-      lista.forEach((prop) => {
-        if (prop && prop.id !== undefined) {
-          propiedadesPorId.set(String(prop.id), prop);
+    const inputCodigo          = document.getElementById('inputCodigoPropiedad');
+    const btnBuscarCodigo      = document.getElementById('btnBuscarCodigoPropiedad');
+    const infoPropiedadEl      = document.getElementById('infoPropiedadElegida');
+    const errorCodigoEl        = document.getElementById('errorCodigoPropiedad');
+    const avisoSeleccion       = document.getElementById('avisoSeleccion');
+    const contenedorCalendario = document.getElementById('contenedorCalendario');
+    const calendarEl           = document.getElementById('calendar');
+
+    let propiedadActualId        = null;
+    let eventoSeleccionadoEl     = null;
+    let diaSeleccionadoEl        = null;
+    let turnoAdminSeleccionadoId = null;
+
+    // Mapa rápido de propiedades cargadas por ID
+    const mapaPropiedadesTurnero = new Map();
+    const scriptProps = document.getElementById('datos-propiedades-turnero');
+    if (scriptProps) {
+        try {
+            const lista = JSON.parse(scriptProps.textContent || '[]');
+            lista.forEach(p => mapaPropiedadesTurnero.set(String(p.id), p));
+        } catch (e) {
+            console.warn('No se pudieron cargar las propiedades del turnero:', e);
         }
-      });
     }
-  } catch (err) {
-    console.warn('No se pudieron leer las propiedades iniciales:', err);
-  }
-}
 
-function normalizarImagenesPropiedad(prop) {
-  let imagenes = prop.imagenes_lista || prop.imagenes || ['img/sin-imagen.jpg'];
-  if (typeof imagenes === 'string') {
-    try { imagenes = JSON.parse(imagenes); } catch { imagenes = ['img/sin-imagen.jpg']; }
-  }
-  if (!Array.isArray(imagenes) || !imagenes.length) {
-    imagenes = ['img/sin-imagen.jpg'];
-  }
-  return imagenes.map((ruta) =>
-    /^https?:\/\//i.test(ruta) ? ruta : `/${String(ruta).replace(/^\/+/, '')}`
-  );
-}
+    function seleccionarTurnoUsuario(turnoId, fechaLinda, elVisual) {
+        if (eventoSeleccionadoEl) {
+            eventoSeleccionadoEl.classList.remove('fc-event-seleccionado');
+        }
+        if (elVisual) {
+            elVisual.classList.add('fc-event-seleccionado');
+            eventoSeleccionadoEl = elVisual;
+        }
+        document.getElementById('inputTurnoId').value = turnoId;
+        document.getElementById('resumenFecha').value = fechaLinda;
+        document.getElementById('btnConfirmarReserva').disabled = false;
+        document.getElementById('alertaUsuario').classList.add('d-none');
+    }
 
-function abrirModalPropiedad(prop) {
-  const modal = document.getElementById('modalPropiedad');
-  if (!modal || !prop) return;
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        height: 'auto',
+        selectable: true,
+        displayEventTime: false,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek'
+        },
+        buttonText: { today: 'Hoy', month: 'Mes', list: 'Lista' },
 
-  const opTexto = prop.operacion ? prop.operacion.charAt(0).toUpperCase() + prop.operacion.slice(1) : 'Propiedad';
-  const dormNum = Number(prop.dormitorios ?? 0);
-  const dormTexto = dormNum === 0
-    ? 'Monoambiente'
-    : `${dormNum} ${dormNum === 1 ? 'dormitorio' : 'dormitorios'}`;
-  const ambNum = Number(prop.ambientes ?? 0);
-  const ambTexto = `${ambNum} ${ambNum === 1 ? 'ambiente' : 'ambientes'}`;
+        events: function (info, successCallback, failureCallback) {
+            if (!propiedadActualId) return successCallback([]);
 
-  document.getElementById('propModalBadge').textContent = opTexto;
-  document.getElementById('propModalTitulo').textContent = prop.titulo || '';
-  document.getElementById('propModalPrecio').textContent = `$${Number(prop.precio || 0).toLocaleString('es-AR')}`;
-  document.getElementById('propModalExpensas').textContent =
-    prop.expensas && Number(prop.expensas) > 0
-      ? `+ $${Number(prop.expensas).toLocaleString('es-AR')} expensas`
-      : 'Sin expensas';
+            fetch(`/turnero/eventos/${propiedadActualId}`)
+                .then(res => res.json())
+                .then(data => successCallback(data))
+                .catch(err => failureCallback(err));
+        },
 
-  document.getElementById('propModalDireccion').textContent = prop.direccion || 'No especificada';
-  document.getElementById('propModalZona').textContent = prop.zona || 'No especificada';
-  document.getElementById('propModalAmbientes').textContent = ambTexto;
-  document.getElementById('propModalDormitorios').textContent = dormTexto;
-  document.getElementById('propModalMetros').textContent = `${prop.metros_cuadrados ?? 0} m²`;
-  document.getElementById('propModalId').textContent = `#${prop.id}`;
+        eventClassNames: function (arg) {
+            return arg.event.extendedProps.estado === 'confirmada'
+                ? ['fc-event-ocupado']
+                : ['fc-event-libre'];
+        },
 
-  const galeria = document.getElementById('propModalGaleria');
-  const imgs = normalizarImagenesPropiedad(prop);
-  galeria.innerHTML = imgs
-    .map((src, i) => `<img src="${src}" alt="${prop.titulo || 'Propiedad'} - foto ${i + 1}">`)
-    .join('');
+        // Clic directo en cualquier día de la grilla
+        dateClick: function (info) {
+            if (diaSeleccionadoEl) {
+                diaSeleccionadoEl.classList.remove('fc-dia-seleccionado');
+            }
+            if (info.dayEl) {
+                info.dayEl.classList.add('fc-dia-seleccionado');
+                diaSeleccionadoEl = info.dayEl;
+            }
 
-  const contCaract = document.getElementById('propModalCaracteristicas');
-  const listaCaract = Array.isArray(prop.caracteristicas) ? prop.caracteristicas : [];
-  if (listaCaract.length > 0) {
-    contCaract.innerHTML = listaCaract
-      .map((c) => {
-        const nombre = typeof c === 'string'
-          ? c
-          : (c.nombre || c.titulo || c.descripcion || '');
-        return nombre ? `<span class="lp-prop-tag">${nombre}</span>` : '';
-      })
-      .join('');
-  } else {
-    contCaract.innerHTML = '<span class="lp-prop-tag-vacio">Sin características adicionales cargadas.</span>';
-  }
+            if (esAdmin) {
+                const inputFecha = document.getElementById('adminFecha');
+                if (inputFecha) {
+                    if (!inputFecha.min || info.dateStr >= inputFecha.min) {
+                        inputFecha.value = info.dateStr;
+                    }
+                }
+                return;
+            }
 
-  modal.classList.remove('d-none');
-  modal.style.display = 'flex';
-}
+            // Si es usuario: buscamos los turnos libres de ese día
+            const eventosDelDia = calendar.getEvents().filter(ev =>
+                ev.startStr && ev.startStr.startsWith(info.dateStr) && ev.extendedProps.estado === 'disponible'
+            );
 
-function cerrarModalPropiedad() {
-  const modal = document.getElementById('modalPropiedad');
-  if (modal) {
-    modal.classList.add('d-none');
-    modal.style.display = '';
-  }
-}
+            if (eventosDelDia.length > 0) {
+                const primero = eventosDelDia[0];
+                seleccionarTurnoUsuario(primero.extendedProps.turno_id, primero.extendedProps.fecha_linda, null);
+            }
+        },
+
+        eventClick: function (info) {
+            const props = info.event.extendedProps;
+
+            if (esAdmin) {
+                const box    = document.getElementById('detalleTurnoAdmin');
+                const txt    = document.getElementById('textoDetalleAdmin');
+                const btnDel = document.getElementById('btnEliminarTurno');
+
+                box.classList.remove('d-none');
+                if (props.estado === 'disponible') {
+                    turnoAdminSeleccionadoId = props.turno_id;
+                    txt.innerHTML = `<strong>${props.fecha_linda}</strong><br>Estado: <span class="text-success fw-semibold">Disponible</span>`;
+                    btnDel.classList.remove('d-none');
+                } else {
+                    turnoAdminSeleccionadoId = null;
+                    txt.innerHTML = `<strong>${props.fecha_linda}</strong><br>Reservado por: <strong>${props.cliente}</strong> (${props.telefono})`;
+                    btnDel.classList.add('d-none');
+                }
+                return;
+            }
+
+            seleccionarTurnoUsuario(props.turno_id, props.fecha_linda, info.el);
+        }
+    });
+
+    calendar.render();
+
+    // Buscar y activar propiedad por código (#102 o 102)
+    function buscarPropiedadPorCodigo() {
+        const limpio = (inputCodigo.value || '').trim().replace(/^#/, '');
+
+        if (!limpio) {
+            propiedadActualId = null;
+            infoPropiedadEl.classList.add('d-none');
+            errorCodigoEl.classList.add('d-none');
+            avisoSeleccion.classList.remove('d-none');
+            contenedorCalendario.classList.add('d-none');
+            if (esAdmin) {
+                document.getElementById('btnHabilitar').disabled = true;
+                document.getElementById('detalleTurnoAdmin').classList.add('d-none');
+            } else {
+                document.getElementById('resumenPropiedad').value = '';
+                document.getElementById('resumenFecha').value = '';
+                document.getElementById('inputTurnoId').value = '';
+                document.getElementById('btnConfirmarReserva').disabled = true;
+            }
+            return;
+        }
+
+        const prop = mapaPropiedadesTurnero.get(limpio);
+
+        if (!prop) {
+            propiedadActualId = null;
+            infoPropiedadEl.classList.add('d-none');
+            errorCodigoEl.classList.remove('d-none');
+            avisoSeleccion.classList.remove('d-none');
+            contenedorCalendario.classList.add('d-none');
+            if (esAdmin) {
+                document.getElementById('btnHabilitar').disabled = true;
+            } else {
+                document.getElementById('resumenPropiedad').value = '';
+                document.getElementById('resumenFecha').value = '';
+                document.getElementById('inputTurnoId').value = '';
+                document.getElementById('btnConfirmarReserva').disabled = true;
+            }
+            return;
+        }
+
+        propiedadActualId = prop.id;
+        const textoProp = `#${prop.id} — ${prop.titulo} (${prop.direccion})`;
+
+        errorCodigoEl.classList.add('d-none');
+        infoPropiedadEl.textContent = textoProp;
+        infoPropiedadEl.classList.remove('d-none');
+
+        avisoSeleccion.classList.add('d-none');
+        contenedorCalendario.classList.remove('d-none');
+
+        if (esAdmin) {
+            document.getElementById('btnHabilitar').disabled = false;
+            document.getElementById('detalleTurnoAdmin').classList.add('d-none');
+        } else {
+            document.getElementById('resumenPropiedad').value = textoProp;
+            document.getElementById('resumenFecha').value = '';
+            document.getElementById('inputTurnoId').value = '';
+            document.getElementById('btnConfirmarReserva').disabled = true;
+        }
+
+        calendar.updateSize();
+        calendar.refetchEvents();
+    }
+
+    btnBuscarCodigo.addEventListener('click', buscarPropiedadPorCodigo);
+    inputCodigo.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarPropiedadPorCodigo();
+        }
+    });
+    inputCodigo.addEventListener('paste', function () {
+        setTimeout(buscarPropiedadPorCodigo, 50);
+    });
+
+    // Lógica Admin
+    if (esAdmin) {
+        const formAdmin   = document.getElementById('formAdminHabilitar');
+        const alertaAdmin = document.getElementById('alertaAdmin');
+
+        formAdmin.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const horas = Array.from(document.querySelectorAll('.check-hora:checked')).map(c => c.value);
+            const extra = document.getElementById('horaExtra').value;
+            if (extra && !horas.includes(extra)) horas.push(extra);
+
+            if (horas.length === 0) {
+                alertaAdmin.classList.remove('d-none', 'alert-success');
+                alertaAdmin.classList.add('alert-danger');
+                alertaAdmin.textContent = 'Seleccioná al menos un horario.';
+                return;
+            }
+
+            fetch(urlHabilitar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    propiedad_id: propiedadActualId,
+                    fecha: document.getElementById('adminFecha').value,
+                    horas: horas
+                })
+            })
+            .then(async res => {
+                const data = await res.json();
+                alertaAdmin.classList.remove('d-none', 'alert-success', 'alert-danger');
+                alertaAdmin.classList.add(res.ok && data.ok ? 'alert-success' : 'alert-danger');
+                alertaAdmin.textContent = data.mensaje || 'Error al habilitar horarios.';
+
+                if (res.ok && data.ok) {
+                    document.querySelectorAll('.check-hora').forEach(c => c.checked = false);
+                    document.getElementById('horaExtra').value = '';
+                    calendar.refetchEvents();
+                }
+            });
+        });
+
+        document.getElementById('btnEliminarTurno').addEventListener('click', function () {
+            if (!turnoAdminSeleccionadoId) return;
+
+            fetch(`/turnero/eliminar/${turnoAdminSeleccionadoId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('detalleTurnoAdmin').classList.add('d-none');
+                alertaAdmin.classList.remove('d-none', 'alert-danger');
+                alertaAdmin.classList.add('alert-success');
+                alertaAdmin.textContent = data.mensaje;
+                calendar.refetchEvents();
+            });
+        });
+    }
+
+    // Lógica Usuario
+    if (!esAdmin) {
+        const formUsuario   = document.getElementById('formUsuarioReservar');
+        const alertaUsuario = document.getElementById('alertaUsuario');
+        const btnConfirmar  = document.getElementById('btnConfirmarReserva');
+
+        formUsuario.addEventListener('submit', function (e) {
+            e.preventDefault();
+            btnConfirmar.disabled = true;
+
+            fetch(urlReservar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify({
+                    turno_id: document.getElementById('inputTurnoId').value
+                })
+            })
+            .then(async res => {
+                const data = await res.json();
+                alertaUsuario.classList.remove('d-none', 'alert-success', 'alert-danger');
+                alertaUsuario.classList.add(res.ok && data.ok ? 'alert-success' : 'alert-danger');
+                alertaUsuario.textContent = data.mensaje || 'No se pudo confirmar.';
+
+                document.getElementById('inputTurnoId').value = '';
+                document.getElementById('resumenFecha').value = '';
+                eventoSeleccionadoEl = null;
+                calendar.refetchEvents();
+            });
+        });
+    }
+});
 
 //-----------------------------------------INICIO & TASACIONES-----------------------------------------------//
 
@@ -826,7 +1161,6 @@ function renderizarTarjetasDesdeJson(propiedades) {
     `;
   }).join('');
 }
-
 //-------------------------------------CHATBOT CON BOTUI------------------------------------//
 
 const botui = document.getElementById('lonco-botui') ? new BotUI('lonco-botui') : null;
@@ -1094,53 +1428,19 @@ async function procesarTextoEscrito(texto) {
 
 async function flujoVisita() {
   if (!botui) return;
-  await botui.message.add({ delay: 300, content: 'Ingresá el código de la propiedad (ej: 101, 102, 103):' });
-  const codigo = await botui.action.text({ action: { placeholder: 'Código...' } });
-
-  const respuesta = await fetch('/chatbot/propiedad/' + codigo.value.trim());
-  const prop = await respuesta.json();
-
-  if (!prop.ok) {
-    await botui.message.add({ delay: 300, content: prop.mensaje });
-    mostrarMenu('¿Te puedo ayudar en algo más?');
-    return;
-  }
 
   await botui.message.add({
     type: 'html',
     delay: 400,
-    content: '<strong>' + prop.titulo + '</strong><br>Dirección: ' + prop.direccion
+    loading: true,
+    content:
+      'Podés agendar tu visita directamente desde nuestro <strong>Turnero online</strong> siguiendo estos pasos:<br><br>' +
+      '<strong>1.</strong> Iniciá sesión o registrate con tu cuenta en la web.<br>' +
+      '<strong>2.</strong> Copiá el código de la propiedad que te interesa (ej: <em>#102</em>).<br>' +
+      '<strong>3.</strong> Entrá al turnero, pegá el código y elegí el día y horario disponible.<br><br>' +
+      '<a href="/turnero" class="btn-bot-turnero-link">Ir al Turnero de Visitas →</a>'
   });
 
-  let horarioElegido = '';
-  if (prop.horarios_visita && prop.horarios_visita.length > 0) {
-    const botonesHorarios = [];
-    for (let i = 0; i < prop.horarios_visita.length; i++) {
-      botonesHorarios.push({ text: prop.horarios_visita[i], value: prop.horarios_visita[i] });
-    }
-    await botui.message.add({ delay: 300, content: 'Elegí un horario disponible:' });
-    const btn = await botui.action.button({ action: botonesHorarios });
-    horarioElegido = btn.value;
-  } else {
-    await botui.message.add({ delay: 300, content: '¿Qué día y horario preferís?' });
-    const txt = await botui.action.text({ action: { placeholder: 'Ej: Martes 10:00 hs' } });
-    horarioElegido = txt.value;
-  }
-
-  await botui.message.add({ delay: 300, content: '¿Cuál es tu nombre completo?' });
-  const nombre = await botui.action.text({ action: { placeholder: 'Tu nombre...' } });
-
-  await botui.message.add({ delay: 300, content: 'Dejanos un teléfono de contacto:' });
-  const telefono = await botui.action.text({ action: { placeholder: 'Ej: 299 555-1234' } });
-
-  const resultado = await enviarPost('/chatbot/visita', {
-    propiedad_id: prop.id,
-    nombre_cliente: nombre.value,
-    telefono_cliente: telefono.value,
-    fecha_elegida: horarioElegido
-  });
-
-  await botui.message.add({ delay: 400, loading: true, content: resultado.mensaje });
   mostrarMenu('¿Te puedo ayudar en algo más?');
 }
 
@@ -1157,7 +1457,6 @@ function calcularValorM2Referencia(zona, tipo, operacion) {
 
   return baseM2;
 }
-
 
 // TURNERO (fullcalendar, turnocontroller y ajax)
 document.addEventListener('DOMContentLoaded', function () {

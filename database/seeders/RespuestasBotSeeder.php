@@ -52,13 +52,6 @@ class RespuestasBotSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            [
-                'clave' => 'coordinar_visitas',
-                'titulo' => 'Coordinar visitas',
-                'contenido' => "• Si querés coordinar una visita, volvé al menú de inicio del chatbot y tocá la opción -Agendar visita. Te pediremos el id del departamento, qué fecha y horarios te quedan cómodos, tu nombre y tu teléfono.",
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
         ];
 
         // Si la 'clave' ya existe, actualiza título y contenido; si no existe, la inserta

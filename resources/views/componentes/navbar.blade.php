@@ -1,7 +1,5 @@
 <header class="lp-navbar">
     <nav class="lp-navbar-container">
-        <a href="{{ url('/') }}" class="lp-navbar-logo">LoncoProp</a>
-
         <ul class="lp-navbar-links">
             <li>
                 <a href="{{ route('inicio') }}" class="lp-nav-link {{ request()->routeIs('inicio') ? 'active' : '' }}">Inicio</a>

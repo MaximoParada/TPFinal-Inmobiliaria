@@ -45,8 +45,6 @@ class PalabrasClaveSeeder extends Seeder
             ['palabra' => 'mail', 'clave' => 'contacto_info'],
             ['palabra' => 'correo', 'clave' => 'contacto_info'],
 
-            //Visitas
-            ['palabra' => 'visita', 'clave' => 'coordinar_visitas'],
         ];
 
         $filas = [];
