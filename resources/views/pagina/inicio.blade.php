@@ -180,7 +180,7 @@
           <div class="lp-card-agregar-box">
             <span class="lp-card-agregar-icono">+</span>
           </div>
-          <span class="lp-card-agregar-texto">agregar propiedad</span>
+          <span class="lp-card-agregar-texto">Agregar propiedad</span>
         </a>
       @endif
     </div>
