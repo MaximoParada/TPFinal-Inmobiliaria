@@ -2029,7 +2029,6 @@ body {
   color: #ffffff;
   border-color: #141414;
 }
-
 /* =========================================
    ACCIONES ADMIN EN TARJETAS DE PROPIEDADES
    ========================================= */
@@ -2043,19 +2042,19 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background-color: #0f172a;
+    background-color: #8c6d59;
     color: #ffffff;
     font-weight: 600;
     font-size: 0.9rem;
     padding: 0.65rem 1.35rem;
     border-radius: 9999px;
     text-decoration: none;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 4px 12px rgba(140, 109, 89, 0.22);
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .lp-btn-admin-agregar:hover {
-    background-color: #1e293b;
+    background-color: #755947;
     color: #ffffff;
     transform: translateY(-1px);
 }
@@ -2068,13 +2067,13 @@ body {
 }
 
 .lp-prop-tag {
-    background-color: #f1f5f9;
-    color: #334155;
+    background-color: #f6f4f1;
+    color: #4e3b31;
     font-size: 0.78rem;
     font-weight: 600;
     padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e4dfd9;
 }
 
 .lp-prop-admin-acciones {
@@ -2083,7 +2082,7 @@ body {
     gap: 0.6rem;
     margin-top: 1rem;
     padding-top: 0.85rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #e4dfd9;
 }
 
 .lp-prop-admin-acciones form {
@@ -2108,15 +2107,15 @@ body {
 }
 
 .lp-btn-prop-editar {
-    background-color: #f8fafc;
-    color: #0f172a;
-    border: 1px solid #cbd5e1;
+    background-color: #f6f4f1;
+    color: #4e3b31;
+    border: 1px solid #d6cfc7;
 }
 
 .lp-btn-prop-editar:hover {
-    background-color: #0f172a;
+    background-color: #8c6d59;
     color: #ffffff;
-    border-color: #0f172a;
+    border-color: #8c6d59;
 }
 
 .lp-btn-prop-eliminar {
@@ -2140,10 +2139,10 @@ body {
 
 .lp-prop-form-card {
     background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
+    border: 1px solid #e4dfd9;
+    border-radius: 28px;
     padding: 2.25rem;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 12px 32px rgba(78, 59, 49, 0.08);
 }
 
 .lp-prop-form-header {
@@ -2153,12 +2152,12 @@ body {
 .lp-prop-form-header h2 {
     font-size: 1.65rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #231f1d;
     margin-bottom: 0.35rem;
 }
 
 .lp-prop-form-header p {
-    color: #64748b;
+    color: #6e6761;
     font-size: 0.95rem;
     margin: 0;
 }
@@ -2182,42 +2181,44 @@ body {
 .lp-prop-field label {
     font-size: 0.88rem;
     font-weight: 600;
-    color: #1e293b;
+    color: #4e3b31;
 }
 
 .lp-prop-field input,
 .lp-prop-field select {
     width: 100%;
-    padding: 0.65rem 0.9rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
+    padding: 0.7rem 1.15rem;
+    border: 1px solid #d6cfc7;
+    border-radius: 9999px;
     font-size: 0.95rem;
-    color: #0f172a;
-    background-color: #f8fafc;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    color: #231f1d;
+    background-color: #f6f4f1;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .lp-prop-field input:focus,
 .lp-prop-field select:focus {
     outline: none;
-    border-color: #0f172a;
+    border-color: #8c6d59;
     background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(140, 109, 89, 0.14);
 }
 
 .lp-prop-fieldset {
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
+    border: 1px solid #e4dfd9;
+    border-radius: 24px;
     padding: 1.15rem 1.25rem;
     margin-top: 1.4rem;
+    background-color: #faf9f7;
 }
 
 .lp-prop-fieldset legend {
     float: none;
     width: auto;
-    padding: 0 0.5rem;
+    padding: 0 0.6rem;
     font-size: 0.9rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #4e3b31;
 }
 
 .lp-prop-checks {
@@ -2231,12 +2232,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.4rem 0.85rem;
+    padding: 0.45rem 0.95rem;
     border-radius: 9999px;
-    background-color: #f8fafc;
-    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    border: 1px solid #d6cfc7;
     font-size: 0.88rem;
-    color: #1e293b;
+    color: #231f1d;
     cursor: pointer;
 }
 
@@ -2247,7 +2248,7 @@ body {
     gap: 0.75rem;
     margin-top: 1.75rem;
     padding-top: 1.25rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #e4dfd9;
 }
 
 .lp-btn-form-cancelar,
@@ -2261,28 +2262,29 @@ body {
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .lp-btn-form-cancelar {
-    background-color: #f1f5f9;
-    color: #334155;
-    border: 1px solid #cbd5e1;
+    background-color: #ebe6df;
+    color: #4e3b31;
+    border: 1px solid #d6cfc7;
 }
 
 .lp-btn-form-cancelar:hover {
-    background-color: #e2e8f0;
-    color: #0f172a;
+    background-color: #dfd8cf;
+    color: #231f1d;
 }
 
 .lp-btn-form-guardar {
-    background-color: #0f172a;
+    background-color: #8c6d59;
     color: #ffffff;
-    border: 1px solid #0f172a;
+    border: 1px solid #8c6d59;
 }
 
 .lp-btn-form-guardar:hover {
-    background-color: #1e293b;
+    background-color: #755947;
+    border-color: #755947;
 }
 
 @media (max-width: 640px) {
