@@ -18,23 +18,50 @@ class PropiedadController extends Controller
     {
         $validated = $request->validate([
             'titulo' => ['required', 'string', 'max:255'],
+            'operacion' => ['required', 'string', 'max:50'],
+            'direccion' => ['required', 'string', 'max:255'],
+            'zona' => ['required', 'string', 'max:255'],
+            'ambientes' => ['required', 'integer', 'min:1'],
+            'dormitorios' => ['required', 'integer', 'min:0'],
+            'metros_cuadrados' => ['required', 'integer', 'min:1'],
             'precio' => ['required', 'numeric', 'min:0'],
+            'expensas' => ['nullable', 'numeric', 'min:0'],
             'caracteristicas' => ['nullable', 'array'],
             'caracteristicas.*' => ['integer', 'exists:caracteristicas,id'],
         ]);
 
-        // Ajustá estos campos a las columnas reales de tu tabla propiedades
+        $rutas = [];
+        if ($request->hasFile('imagenes')) {
+            $destino = public_path('img/propiedades');
+            if (!is_dir($destino)) {
+                mkdir($destino, 0755, true);
+            }
+            foreach ($request->file('imagenes') as $archivo) {
+                if ($archivo && $archivo->isValid()) {
+                    $nombre = time() . '_' . uniqid() . '.' . strtolower($archivo->getClientOriginalExtension() ?: 'jpg');
+                    $archivo->move($destino, $nombre);
+                    $rutas[] = 'img/propiedades/' . $nombre;
+                }
+            }
+        }
+
         $propiedad = Propiedad::create([
             'titulo' => $validated['titulo'],
+            'operacion' => $validated['operacion'],
+            'direccion' => $validated['direccion'],
+            'zona' => $validated['zona'],
+            'ambientes' => $validated['ambientes'],
+            'dormitorios' => $validated['dormitorios'],
+            'metros_cuadrados' => $validated['metros_cuadrados'],
             'precio' => $validated['precio'],
+            'expensas' => $validated['expensas'] ?? 0,
+            'imagenes' => $rutas,
         ]);
 
-        // Asocia características en la tabla intermedia caracteristica_propiedad
         $propiedad->caracteristicas()->sync($validated['caracteristicas'] ?? []);
 
         return redirect('/')->with('success', 'Propiedad creada correctamente.');
     }
-
     public function edit(Propiedad $propiedad)
     {
         $caracteristicas = Caracteristica::orderBy('nombre')->get();
@@ -45,6 +72,26 @@ class PropiedadController extends Controller
 
     public function update(Request $request, Propiedad $propiedad)
     {
+        if ($request->hasFile('imagenes')) {
+            $rutas = [];
+            $destino = public_path('img/propiedades');
+
+            if (!is_dir($destino)) {
+                mkdir($destino, 0755, true);
+            }
+
+            foreach ($request->file('imagenes') as $archivo) {
+                if ($archivo && $archivo->isValid()) {
+                    $nombre = time() . '_' . uniqid() . '.' . strtolower($archivo->getClientOriginalExtension() ?: 'jpg');
+                    $archivo->move($destino, $nombre);
+                    $rutas[] = 'img/propiedades/' . $nombre;
+                }
+            }
+
+            $propiedad->imagenes = $rutas;
+            $propiedad->save();
+        }
+
         $validated = $request->validate([
             'titulo' => ['required', 'string', 'max:255'],
             'precio' => ['required', 'numeric', 'min:0'],
