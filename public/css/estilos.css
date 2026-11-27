@@ -1615,3 +1615,264 @@ body {
   color: #ffffff;
   border-color: #141414;
 }
+
+/* =========================================
+   ACCIONES ADMIN EN TARJETAS DE PROPIEDADES
+   ========================================= */
+.lp-admin-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.25rem;
+}
+
+.lp-btn-admin-agregar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.35rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.lp-btn-admin-agregar:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.lp-prop-caracteristicas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+}
+
+.lp-prop-tag {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    border: 1px solid #e2e8f0;
+}
+
+.lp-prop-admin-acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.lp-prop-admin-acciones form {
+    margin: 0;
+    flex: 1;
+}
+
+.lp-btn-prop-editar,
+.lp-btn-prop-eliminar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 0.9rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.lp-btn-prop-editar {
+    background-color: #f8fafc;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+}
+
+.lp-btn-prop-editar:hover {
+    background-color: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+
+.lp-btn-prop-eliminar {
+    background-color: #fff1f2;
+    color: #be123c;
+    border: 1px solid #fecdd3;
+}
+
+.lp-btn-prop-eliminar:hover {
+    background-color: #e11d48;
+    color: #ffffff;
+    border-color: #e11d48;
+}
+
+/* =========================================
+   FORMULARIOS CREAR Y EDITAR PROPIEDAD
+   ========================================= */
+.lp-prop-form-section {
+    max-width: 820px;
+}
+
+.lp-prop-form-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 2.25rem;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.lp-prop-form-header {
+    margin-bottom: 1.75rem;
+}
+
+.lp-prop-form-header h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.35rem;
+}
+
+.lp-prop-form-header p {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.lp-prop-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.15rem;
+}
+
+.lp-prop-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.lp-prop-field-full {
+    grid-column: 1 / -1;
+}
+
+.lp-prop-field label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.lp-prop-field input,
+.lp-prop-field select {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: #0f172a;
+    background-color: #f8fafc;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.lp-prop-field input:focus,
+.lp-prop-field select:focus {
+    outline: none;
+    border-color: #0f172a;
+    background-color: #ffffff;
+}
+
+.lp-prop-fieldset {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.15rem 1.25rem;
+    margin-top: 1.4rem;
+}
+
+.lp-prop-fieldset legend {
+    float: none;
+    width: auto;
+    padding: 0 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.lp-prop-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.35rem;
+}
+
+.lp-prop-check-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    font-size: 0.88rem;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.lp-prop-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.lp-btn-form-cancelar,
+.lp-btn-form-guardar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.45rem;
+    border-radius: 9999px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.lp-btn-form-cancelar {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.lp-btn-form-cancelar:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.lp-btn-form-guardar {
+    background-color: #0f172a;
+    color: #ffffff;
+    border: 1px solid #0f172a;
+}
+
+.lp-btn-form-guardar:hover {
+    background-color: #1e293b;
+}
+
+@media (max-width: 640px) {
+    .lp-prop-form-grid {
+        grid-template-columns: 1fr;
+    }
+}

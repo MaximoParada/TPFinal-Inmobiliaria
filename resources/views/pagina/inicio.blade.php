@@ -63,6 +63,12 @@
       </button>
     </div>
 
+    @if(auth()->check() && auth()->user()->rol === 'admin')
+      <div class="lp-admin-toolbar">
+        <a href="{{ route('propiedades.create') }}" class="lp-btn-admin-agregar">+ Agregar Propiedad</a>
+      </div>
+    @endif
+
     <div class="cards-grid" id="contenedor-tarjetas">
       @forelse (($propiedades ?? collect())->unique('id') as $propiedad)
         <article class="property-card" data-id="{{ $propiedad->id }}">
@@ -125,6 +131,26 @@
               <span>•</span>
               <span>{{ $propiedad->metros_cuadrados }} m²</span>
             </div>
+
+            @if($propiedad->caracteristicas->count())
+              <div class="lp-prop-caracteristicas">
+                @foreach ($propiedad->caracteristicas as $carac)
+                  <span class="lp-prop-tag">{{ $carac->nombre }}</span>
+                @endforeach
+              </div>
+            @endif
+
+            @if(auth()->check() && auth()->user()->rol === 'admin')
+              <div class="lp-prop-admin-acciones">
+                <a href="{{ route('propiedades.edit', $propiedad) }}" class="lp-btn-prop-editar">Editar</a>
+
+                <form action="{{ route('propiedades.destroy', $propiedad) }}" method="POST" onsubmit="return confirm('¿Seguro que querés eliminar esta propiedad?');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="lp-btn-prop-eliminar">Eliminar</button>
+                </form>
+              </div>
+            @endif
           </div>
         </article>
       @empty

@@ -109,76 +109,10 @@
                 </div>
             </div>
 
-            <div class="lp-perfil-acciones-top">
-                <button type="button" class="btn-auth-editar" onclick="mostrarEdicionPerfil()">
-                    Modificar datos
-                </button>
-            </div>
-
             <div class="lp-perfil-footer-doble">
                 <form id="formLogoutFlotante" action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn-auth-logout">Cerrar sesión</button>
-                </form>
-
-                <button type="button" class="btn-auth-eliminar" onclick="mostrarConfirmacionEliminar()">
-                    Eliminar cuenta
-                </button>
-            </div>
-        </div>
-
-        <!-- VISTA EDITAR DATOS -->
-        <form id="formEditarPerfil" action="{{ route('perfil.update') }}" method="POST" class="lp-modal-form d-none" autocomplete="off">
-            @csrf
-            @method('PUT')
-            <div class="lp-fila-doble">
-                <div class="lp-campo">
-                    <label for="edit_name">Nombre</label>
-                    <input type="text" id="edit_name" name="name" required value="{{ auth()->user()->name }}">
-                </div>
-                <div class="lp-campo">
-                    <label for="edit_apellido">Apellido</label>
-                    <input type="text" id="edit_apellido" name="apellido" required value="{{ auth()->user()->apellido }}">
-                </div>
-            </div>
-
-            <div class="lp-fila-doble">
-                <div class="lp-campo">
-                    <label for="edit_telefono">Teléfono</label>
-                    <input type="text" id="edit_telefono" name="telefono" required value="{{ auth()->user()->telefono }}">
-                </div>
-                <div class="lp-campo">
-                    <label for="edit_email">Correo electrónico</label>
-                    <input type="email" id="edit_email" name="email" required value="{{ auth()->user()->email }}">
-                </div>
-            </div>
-
-            <div class="lp-campo">
-                <label for="edit_direccion">Dirección</label>
-                <input type="text" id="edit_direccion" name="direccion" required value="{{ auth()->user()->direccion }}">
-            </div>
-
-            <div class="lp-perfil-footer-doble">
-                <button type="button" class="btn-auth-cancelar" onclick="cancelarEdicionPerfil()">Cancelar</button>
-                <button type="submit" class="btn-auth-submit m-0">Guardar cambios</button>
-            </div>
-        </form>
-
-        <!-- VISTA CONFIRMACIÓN ELIMINAR CUENTA -->
-        <div id="vistaConfirmarEliminar" class="lp-confirm-box d-none">
-            <p class="lp-confirm-texto">
-                ¿Estás seguro? Este proceso eliminará definitivamente tu cuenta.
-            </p>
-            <div class="lp-perfil-footer-doble">
-                <button type="button" class="btn-auth-cancelar" onclick="cancelarConfirmacionEliminar()">
-                    Cancelar
-                </button>
-                <form id="formEliminarCuenta" action="{{ route('perfil.destroy') }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-auth-eliminar-confirm">
-                        Aceptar
-                    </button>
                 </form>
             </div>
         </div>

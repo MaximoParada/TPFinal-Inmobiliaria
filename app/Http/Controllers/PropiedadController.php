@@ -11,7 +11,7 @@ class PropiedadController extends Controller
     public function create()
     {
         $caracteristicas = Caracteristica::orderBy('nombre')->get();
-        return view('propiedades.create', compact('caracteristicas'));
+        return view('pagina.crearPropiedad', compact('caracteristicas'));
     }
 
     public function store(Request $request)
@@ -40,7 +40,7 @@ class PropiedadController extends Controller
         $caracteristicas = Caracteristica::orderBy('nombre')->get();
         $seleccionadas = $propiedad->caracteristicas()->pluck('caracteristicas.id')->toArray();
 
-        return view('propiedades.edit', compact('propiedad', 'caracteristicas', 'seleccionadas'));
+        return view('pagina.editarPropiedad', compact('propiedad', 'caracteristicas', 'seleccionadas'));
     }
 
     public function update(Request $request, Propiedad $propiedad)
