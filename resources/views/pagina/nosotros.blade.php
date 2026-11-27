@@ -49,7 +49,7 @@
         <div class="col-12 col-lg-4">
             <h2 class="h4 fw-bold mb-3 nosotros-subtitulo">Cómo trabajamos</h2>
             <p class="small mb-0 nosotros-texto-suave" style="line-height: 1.6;">
-                Eliminamos la burocracia innecesaria para conectar personas con espacios reales.
+                Eliminamos la espera innecesaria para conectar personas con espacios reales.
             </p>
         </div>
 
@@ -77,7 +77,7 @@
                     <article class="pillar-card h-100">
                         <h3 class="h6 fw-bold mb-2">Visitas Coordinadas</h3>
                         <p class="small mb-0">
-                            Agendá recorridos presenciales o virtuales directamente desde el chat sin esperas telefónicas.
+                            Agendá recorridos presenciales o virtuales directamente desde nuestro turnero en la web sin esperas telefónicas.
                         </p>
                     </article>
                 </div>
