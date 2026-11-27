@@ -81,12 +81,6 @@
       </p>
     </div>
 
-    @if(auth()->check() && auth()->user()->rol === 'admin')
-      <div class="lp-admin-toolbar">
-        <a href="{{ route('propiedades.create') }}" class="lp-btn-admin-agregar">+ Agregar Propiedad</a>
-      </div>
-    @endif
-
     <div class="cards-grid" id="contenedor-tarjetas">
       @forelse (($propiedades ?? collect())->unique('id') as $propiedad)
         <article class="property-card" data-id="{{ $propiedad->id }}">
@@ -180,6 +174,15 @@
       @empty
         <p class="empty-properties">No hay propiedades disponibles por el momento.</p>
       @endforelse
+
+      @if(auth()->check() && auth()->user()->rol === 'admin')
+        <a href="{{ route('propiedades.create') }}" class="property-card lp-card-agregar" aria-label="Agregar propiedad">
+          <div class="lp-card-agregar-box">
+            <span class="lp-card-agregar-icono">+</span>
+          </div>
+          <span class="lp-card-agregar-texto">agregar propiedad</span>
+        </a>
+      @endif
     </div>
 
     <div id="accion-reset-filtros" class="text-center mt-4 d-none">

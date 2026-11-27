@@ -2290,3 +2290,56 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- TARJETA AGREGAR PROPIEDAD --- */
+.lp-card-agregar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  text-decoration: none;
+  color: var(--text-main);
+  padding: 24px 18px;
+}
+
+.lp-card-agregar:hover {
+  color: var(--accent-dark);
+}
+
+.lp-card-agregar-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px dashed var(--border-light);
+  border-radius: 18px;
+  background-color: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.property-card.lp-card-agregar:hover .lp-card-agregar-box {
+  border-color: var(--accent-warm);
+  background-color: var(--surface-sand);
+}
+
+.lp-card-agregar-icono {
+  font-size: 4.5rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--accent-dark);
+  transition: transform 0.25s ease;
+}
+
+.property-card.lp-card-agregar:hover .lp-card-agregar-icono {
+  transform: scale(1.1);
+}
+
+.lp-card-agregar-texto {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-align: center;
+}
