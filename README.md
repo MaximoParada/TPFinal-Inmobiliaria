@@ -63,9 +63,3 @@ Se implementó comunicación asíncrona mediante `fetch()` en **JavaScript** par
 2. **Librería de Chatbot (BotUI / widget conversacional):**
    - **Integración:** Integrada en las vistas Blade y conectada con endpoints de Laravel para responder consultas con datos reales del sistema (*propiedades, tasaciones y turnos*).
    - **Justificación:** Agiliza la atención inicial del visitante, guiándolo hacia las funcionalidades principales sin necesidad de navegar manualmente por todo el sitio.
-
-## Instalación y Ejecución Local
-1. **Clonar el repositorio:**
-   ```bash
-   git clone <URL_DEL_REPOSITORIO>
-   cd <NOMBRE_CARPETA_PROYECTO>
